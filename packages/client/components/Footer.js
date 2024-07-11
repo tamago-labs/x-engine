@@ -2,8 +2,8 @@ import Link from 'next/link';
 
 const Footer = () => {
     return (
-        <footer className="mt-auto bg-neutral-950 h-[28px]">
-            <div className=" text-xs  text-white flex p-1.5">
+        <footer className="mt-auto bg-neutral-900 border-t border-neutral-600  ">
+            <div className=" text-xs text-white flex p-1.5">
                 <div>
                     © {new Date().getFullYear() + ' '}
                     <Link href="https://tamagolabs.com" className="text-white transition ">

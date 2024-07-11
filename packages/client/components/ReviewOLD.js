@@ -28,7 +28,7 @@ border: 10px;
     },
 };
 
-const CodeReview = () => {
+const CodeReviewOLD = () => {
 
     const [fileName, setFileName] = useState('script.js');
 
@@ -56,4 +56,4 @@ const CodeReview = () => {
     )
 }
 
-export default CodeReview
+export default CodeReviewOLD

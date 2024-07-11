@@ -1,10 +1,9 @@
+import Explorer from "@/components/Explorer";
 import Layout from "@/components/Layout"; 
-import dynamic from 'next/dynamic'
+import Main from "@/components/Main";
+// import dynamic from 'next/dynamic'
 
-
-const CodeReview = dynamic(() => import("@/components/Review"), {
-  ssr: false,
-})
+ 
 
 export default function Home() {
 
@@ -12,7 +11,7 @@ export default function Home() {
 
   return (
     <Layout> 
-        {/* <CodeReview/> */}
+       <Main/>
     </Layout>
   );
 }
