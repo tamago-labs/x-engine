@@ -15,8 +15,7 @@ const DeleteFileModal = ({ visible, close, selected }) => {
             <div className="py-2">
                 <b>File Name: </b>
                 <span className="font-mono ml-1.5">{selected && selected.name || ""}</span>
-            </div>
-            <hr />
+            </div> 
             <div className="grid grid-cols-2 gap-3 text-center my-1">
                 <div className="col-span-1   ">
                     <button onClick={() => close()} class={`bg-white text-center text-black mx-auto py-2  w-full    rounded-lg `}>

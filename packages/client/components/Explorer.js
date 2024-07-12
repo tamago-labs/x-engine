@@ -9,23 +9,6 @@ import DeleteProjectModal from "@/modals/deleteProject";
 import NewProjectModal from "@/modals/newProject";
 import NewFileModal from "@/modals/newFile";
 
-const folder = {
-    name: "",
-    children: [
-        {
-            name: "test.move",
-        },
-        {
-            name: "test_1.move",
-        },
-        {
-            name: "test_2.move",
-        },
-    ],
-};
-
-const data = flattenTree(folder);
-
 const FolderIcon = ({ isOpen }) =>
     isOpen ? (
         <FaRegFolderOpen color="e8a87c" className="icon" />
@@ -63,13 +46,31 @@ const Explorer = () => {
 
     const [modal, setModal] = useState(MODAL.NONE)
 
-    const { selected, select } = useContext(AccountContext)
+    const { selected, select, loadProjects, projects } = useContext(AccountContext)
 
-    const [option, setOption] = useState("qa")
+    const [project_name, setProject] = useState()
 
     useEffect(() => {
         select(undefined)
+        loadProjects()
     }, [])
+
+    useEffect(() => {
+        projects && projects[0] && setProject(projects[0].project_name)
+    }, [projects])
+
+    const project = project_name && projects && projects.find(item => item.project_name === project_name)
+
+    const folder = {
+        name: "",
+        children: project ? project.files.map(item => {
+            return {
+                name: item.file_name
+            }
+        }) : []
+    };
+
+    const data = flattenTree(folder);
 
     return (
         <>
@@ -117,14 +118,14 @@ const Explorer = () => {
                                 size={16}
                             />
                         </div>
-
-
                     </div>
                     <div className="col-span-5">
-                        <select onChange={(e) => setOption(e.target.value)} id="countries" class="bg-gray-50 cursor-pointer font-mono border border-gray-300 text-gray-900 text-sm   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected={option === "qa"} value="qa">Document QA</option>
-                            <option selected={option === "summary"} value="summary">Summarization</option>
-                            <option selected={option === "search"} value="search">Similarity Search</option>
+                        <select onChange={(e) => setProject(e.target.value)} id="countries" class="bg-gray-50 cursor-pointer font-mono border border-gray-300 text-gray-900 text-sm   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            {projects.map((item) => {
+                                return (
+                                    <option selected={project_name === item.project_name} value={item.project_name}>{item.project_name}</option>
+                                )
+                            })}
                         </select>
                     </div>
                 </div>
@@ -139,7 +140,12 @@ const Explorer = () => {
                         <TreeView
                             data={data}
                             onNodeSelect={({ element }) => {
-                                select(element)
+                                const fileData = project.files.find(item => item.file_name === element.name) 
+                                select({
+                                    ...element,
+                                    value: atob(fileData.source_code),
+                                    project_name
+                                })
                             }}
                             aria-label="directory tree"
                             nodeRenderer={({

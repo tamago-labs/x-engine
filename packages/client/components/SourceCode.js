@@ -1,7 +1,7 @@
 import { AccountContext } from '@/hooks/useAccount';
 import Editor from '@monaco-editor/react';
 import { X } from "react-feather"
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 const files = {
     'script.js': {
@@ -51,11 +51,13 @@ border: 10px;
 
 const SourceCode = () => {
 
+    const  { loadProfile } = useContext(AccountContext)
+        
     const { selected, select } = useContext(AccountContext)
 
-    const [fileName, setFileName] = useState('script.js');
-
-    const file = files[fileName];
+    useEffect(() => {
+        loadProfile()
+    }, [])
 
     return (
         <div className='flex flex-col h-full text-[#D4D4D4] '>
@@ -66,7 +68,7 @@ const SourceCode = () => {
                             {selected.name}
                         </div>
                         <div onClick={() => select(undefined)} className='m-auto'>
-                            <X size={16} className='ml-1.5 mb-0.5 cursor-pointer'/>
+                            <X size={16} className='ml-1.5 mb-0.5 cursor-pointer' />
                         </div>
                     </div>
                 )}
@@ -77,9 +79,9 @@ const SourceCode = () => {
                 <Editor
                     height="80vh"
                     theme="vs-dark"
-                    path={file.name}
-                    defaultLanguage={file.language}
-                    defaultValue={file.value}
+                    path={selected.name}
+                    defaultLanguage={"rust"}
+                    defaultValue={selected.value}
                 />
                 :
                 <div className='h-[80vh]'>
