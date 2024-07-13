@@ -20,7 +20,10 @@
     "react-dom": "^18",
     "react-feather": "^2.0.10",
     "react-icons": "^5.2.1",
+    "react-markdown": "^9.0.1",
     "react-modal": "^3.16.1",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

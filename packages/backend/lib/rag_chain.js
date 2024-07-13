@@ -165,10 +165,16 @@ class RagChain {
             throw new Error("No Rag Chain setup.")
         }
 
+        console.log("generating...")
+
         const mkd = new Markdown(this.fileIds[0])
 
+        const summary = await this.exclusiveSummary()
+
+        console.log("summary done")
+
         mkd
-            .paragraph(await this.exclusiveSummary())
+            .paragraph(summary)
             .header("Unused Variable", 2)
             .paragraph("Severity: Low")
             .paragraph(await this.unusedVariables())

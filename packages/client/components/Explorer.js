@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react"
-import { ChevronDown, Play, Plus, PlusCircle, Trash2 } from "react-feather"
+import { useCallback, useContext, useEffect, useState } from "react"
+import { ArrowRight, ArrowLeft, Book, BookOpen, ChevronDown, Play, Plus, PlusCircle, Trash2, X } from "react-feather"
 import { DiCss3, DiJavascript, DiNpm, DiCodeBadge, DiCode } from "react-icons/di";
 import { FaList, FaRegFolder, FaRegFolderOpen } from "react-icons/fa";
 import TreeView, { flattenTree } from "react-accessible-treeview";
@@ -46,7 +46,7 @@ const Explorer = () => {
 
     const [modal, setModal] = useState(MODAL.NONE)
 
-    const { selected, select, loadProjects, projects } = useContext(AccountContext)
+    const { selected, select, loadProjects, projects, submit, profile, report, openReport, isOpen, closeReport } = useContext(AccountContext)
 
     const [project_name, setProject] = useState()
 
@@ -58,6 +58,23 @@ const Explorer = () => {
     useEffect(() => {
         projects && projects[0] && setProject(projects[0].project_name)
     }, [projects])
+
+    const onReview = useCallback(async () => {
+
+        if (!selected) {
+            return
+        }
+
+        const file_name = selected.name
+        const source_code = selected.raw_value
+
+        if (confirm("Submit a request") == true) {
+            await submit(profile.slug, file_name, source_code)
+            alert("Done. Please wait a few seconds and refresh.")
+        }
+
+    }, [selected, profile, submit])
+
 
     const project = project_name && projects && projects.find(item => item.project_name === project_name)
 
@@ -140,10 +157,11 @@ const Explorer = () => {
                         <TreeView
                             data={data}
                             onNodeSelect={({ element }) => {
-                                const fileData = project.files.find(item => item.file_name === element.name) 
+                                const fileData = project.files.find(item => item.file_name === element.name)
                                 select({
                                     ...element,
                                     value: atob(fileData.source_code),
+                                    raw_value: fileData.source_code,
                                     project_name
                                 })
                             }}
@@ -170,12 +188,11 @@ const Explorer = () => {
                 </div>
                 <div className="grid grid-cols-1 xl:grid-cols-3 text-center px-1  text-sm my-1">
                     <div className="col-span-1 p-1  ">
-                        <button disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
+                        <button onClick={onReview} disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
                             <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
                             <div className="mr-auto ">
                                 Review
                             </div>
-
                         </button>
                     </div>
                     <div className="col-span-1 p-1  ">
@@ -193,6 +210,43 @@ const Explorer = () => {
                                 Delete
                             </div>
                         </button>
+                    </div>
+                </div>
+
+                <div className="p-2 mt-1">
+                    <div className="border-neutral-600 border p-2 text-[#D4D4D4] pb-3 rounded">
+
+                        {!report && (
+                            <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
+                                This file has not yet been reviewed 
+                            </div>
+                        )
+
+                        }
+
+                        {report && (
+                            <>
+                                <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
+                                    The report is ready
+                                </div> 
+                            </>
+                        ) }
+
+                        <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}  text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
+                            <div className="ml-auto text-sm">
+                                {!isOpen ? "Open" : "Close"} Report
+                            </div>
+                            {!isOpen 
+                            ?
+                            <ArrowRight size={16} className="mr-auto  mt-0.5 ml-0.5" />
+                            :
+                            <X size={16} className="mr-auto  mt-0.5 ml-0.5" />
+
+                            }
+                            
+                        </button>
+
+
                     </div>
                 </div>
 

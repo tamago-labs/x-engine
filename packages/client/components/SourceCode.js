@@ -51,8 +51,8 @@ border: 10px;
 
 const SourceCode = () => {
 
-    const  { loadProfile } = useContext(AccountContext)
-        
+    const { loadProfile } = useContext(AccountContext)
+
     const { selected, select } = useContext(AccountContext)
 
     useEffect(() => {
@@ -89,8 +89,8 @@ const SourceCode = () => {
             }
 
 
-            <div className='  flex-grow border-neutral-600 border-t'>
-                hello
+            <div className='flex-grow border-neutral-600 border-t font-mono p-4 text-sm'>
+                Welcome to XReview, an AI code review tool for Move contracts. This is an early preview version and free to use. Each user can submit up to 5 code review requests per day.
             </div>
 
         </div>

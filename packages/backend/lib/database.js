@@ -76,10 +76,29 @@ class Database {
         }
     }
 
+    attachReport = async (key, report) => {
+        try {
+            let entry = await this.db.get(key)
+            entry.report = report
+            await this.db.put(entry) 
+        } catch (e) {
+
+        }
+    }
+
     getFile = async (key) => {
         try {
             const entry = await this.db.get(key)
             return entry.source_code
+        } catch (e) {
+            return 
+        }
+    }
+
+    getReport = async (key) => {
+        try {
+            const entry = await this.db.get(key)
+            return entry.report
         } catch (e) {
             return 
         }

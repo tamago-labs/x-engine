@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useReducer } from "react";
+import { createContext, useCallback, useEffect, useMemo, useReducer } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 import { slugify } from "@/helpers";
@@ -16,13 +16,16 @@ const Provider = ({ children }) => {
         {
             selected: undefined,
             profile: undefined,
+            report: undefined,
+            isOpen: false,
             connected: false,
             quota: [0, 0],
-            projects: []
+            projects: [],
+            tick: 0
         }
     )
 
-    const { selected, profile, connected, quota, projects } = values
+    const { selected, profile, connected, quota, projects, report, tick, isOpen } = values
 
     const select = (selected) => {
         dispatch({ selected })
@@ -39,6 +42,14 @@ const Provider = ({ children }) => {
         }
     }
 
+    const openReport = () => {
+        dispatch({ isOpen : true })
+    }
+
+    const closeReport = () => {
+        dispatch({ isOpen : false })
+    }
+
     const checkQuota = async (slug) => {
         try {
             const { data } = await axios.get(`${HOST}/account/${slug}`)
@@ -50,6 +61,35 @@ const Provider = ({ children }) => {
 
         }
     }
+
+    const checkReport = async (slug, file_name) => {
+        try {
+            const { data } = await axios.get(`${HOST}/report/${slug}/${file_name}`)
+            if (data && data.status === "ok") {
+                const { report } = data
+                dispatch({ report })
+            } else {
+                dispatch({ report: undefined })
+            }
+        } catch (e) {
+            dispatch({ report: undefined })
+        }
+    }
+
+    const submit = useCallback(async (slug, file_name, source_code) => {
+        try {
+
+            await axios.post(`${HOST}/submit/${slug}`, {
+                file_name,
+                source_code
+            })
+
+            dispatch({ tick: tick + 1 })
+
+        } catch (e) {
+
+        }
+    }, [tick])
 
     const loadProfile = async () => {
 
@@ -83,7 +123,14 @@ const Provider = ({ children }) => {
 
     useEffect(() => {
         profile && checkQuota(profile.slug)
-    }, [profile])
+    }, [profile, tick])
+
+    useEffect(() => {
+        console.log(profile && profile.slug, selected && selected.name)
+        profile && selected && checkReport(profile.slug, selected.name)
+    }, [profile, selected, tick])
+
+    console.log("erport", report)
 
     const accountContext = useMemo(
         () => ({
@@ -94,13 +141,22 @@ const Provider = ({ children }) => {
             profile,
             connected,
             quota,
-            projects
+            projects,
+            submit,
+            report,
+            checkReport,
+            openReport,
+            closeReport,
+            isOpen
         }), [
         selected,
         profile,
         connected,
         quota,
-        projects
+        submit,
+        projects,
+        report,
+        isOpen
     ]
     )
 
