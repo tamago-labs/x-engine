@@ -1,6 +1,6 @@
 
 import PouchDB from 'pouchdb';
-
+import { Document } from "langchain/document";
 
 import 'dotenv/config'
 
@@ -35,7 +35,7 @@ class Database {
 
             const item = {
                 _id: "info",
-                maxDailyLimit: 10,
+                maxDailyLimit: 5,
                 created: new Date().valueOf(),
                 usageTimestamps: []
             }
@@ -58,6 +58,44 @@ class Database {
             ...entry,
             _rev: rev
         }
+    }
+
+    // key - filename ex. test.move
+    // value - source code in base64 
+    addFile = async (key, value) => {
+        try {
+            let entry = await this.db.get(key)
+            entry.source_code = value
+            await this.db.put(entry) 
+        } catch (e) {
+            const item = {
+                _id: key,
+                source_code: value
+            }
+            await this.db.put(item)
+        }
+    }
+
+    getFile = async (key) => {
+        try {
+            const entry = await this.db.get(key)
+            return entry.source_code
+        } catch (e) {
+            return 
+        }
+    }
+
+    loadDocuments = async (keys = []) => {
+        let result = []
+        for (let key of keys) {
+            const source_code = await this.getFile(key)
+            if (source_code) {
+                const pageContent = Buffer.from(source_code, 'base64').toString('utf8')
+                const doc = new Document({ pageContent , metadata: { source: key } })
+                result.push(doc)
+            }
+        }
+        return result
     }
 
     destroy = async () => {

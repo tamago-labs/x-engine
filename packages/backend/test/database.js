@@ -1,5 +1,8 @@
 import { expect } from "chai";
 import Database from "../lib/database.js"
+import { slugify } from "../helpers/index.js";
+
+import EXAMPLE_CONTRACTS from "../example/contracts.js"
 
 let instance
 
@@ -8,7 +11,7 @@ describe('#db()', function () {
 
     before(function () {
 
-        instance = new Database("my_slug", false)
+        instance = new Database("my_slug")
 
     })
 
@@ -16,7 +19,7 @@ describe('#db()', function () {
 
         let entry = await instance.getInfo()
         expect(entry["currentDailyLimit"]).equal(0)
-        expect(entry["maxDailyLimit"]).equal(10)
+        expect(entry["maxDailyLimit"]).equal(5)
         
         // add usages 
         entry = await instance.addUsage( entry, new Date().valueOf() )
@@ -25,61 +28,32 @@ describe('#db()', function () {
         
         entry = await instance.getInfo()
         expect(entry["currentDailyLimit"]).equal(3)
-        expect(entry["maxDailyLimit"]).equal(10)
+        expect(entry["maxDailyLimit"]).equal(5)
 
     })
 
-    // it('should add a single item', async function () {
+    it('should add files', async function () {
+      
+        const files = EXAMPLE_CONTRACTS[0].files
 
-    //     const response = await instance.addItems(["id1"], ["foo"], [{ source: "1" }])
-    //     expect(response[0]["ok"]).equal(true)
+        for (let file of files) {
+            await instance.addFile( file.file_name, file.source_code )
+            // checking
+            const data = await instance.getFile(file.file_name)
+            expect( data ).to.equal(file.source_code)
+        }
+        
+    })
 
-    //     const result = await instance.getItem("id1")
+    it('should load documents', async function () {
+      
+        const files = EXAMPLE_CONTRACTS[0].files
+        const ids = files.map(item => item.file_name)
 
-    //     expect(result["_id"]).equal("id1")
-    //     expect(result["pageContent"]).equal("foo")
-    //     expect(result["metadata"]["source"]).equal("1")
-    // })
+        const docs = await instance.loadDocuments(ids)
 
-    // it('should add items', async function () {
-
-    //     const response = await instance.addItems(
-    //         ["id2", "id3"],
-    //         ["foo", "foo"],
-    //         [{ source: "1" }, { source: "2" }]
-    //     )
-    //     response.map(item => expect(item["ok"]).equal(true))
-
-    //     const result = await instance.getItems("id", "id\ufff0")
-
-    //     expect(result[0]["_id"]).equal("id1")
-    //     expect(result[0]["pageContent"]).equal("foo")
-    //     expect(result[0]["metadata"]["source"]).equal("1")
-
-    //     expect(result[1]["_id"]).equal("id2")
-    //     expect(result[1]["pageContent"]).equal("foo")
-    //     expect(result[1]["metadata"]["source"]).equal("1")
-
-    //     expect(result[2]["_id"]).equal("id3")
-    //     expect(result[2]["pageContent"]).equal("foo")
-    //     expect(result[2]["metadata"]["source"]).equal("2")
-    // })
-
-    // it('should update a single item', async function () {
-
-    //     let item = await instance.getItem("id1")
-
-    //     item['pageContent'] = "bar"
-    //     item['metadata'] = { source: "2" }
-
-    //     const response = await instance.updateItem("id1", item['_rev'], item.pageContent, item.metadata)
-    //     expect(response["ok"]).equal(true)
-
-    //     const result = await instance.getItem("id1")
-    //     expect(result["_id"]).equal("id1")
-    //     expect(result["pageContent"]).equal("bar")
-    //     expect(result["metadata"]["source"]).equal("2")
-    // })
+        expect(docs.length).to.equal(6)
+    })
 
     it('Destroy it', async function () {
         await instance.destroy()

@@ -1,7 +1,9 @@
 import * as fastq from "fastq";
 import express from "express";
 import cors from "cors"
+import assert from "assert"
 import Database from "./lib/database.js"
+
 import { slugify } from "./helpers/index.js"
 
 import 'dotenv/config'
@@ -53,3 +55,4 @@ app.get("/account/:slug", async (req, res) => {
 
     return res.status(200).json({ status: "ok", account: await db.getInfo() });
 })
+

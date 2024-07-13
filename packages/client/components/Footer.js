@@ -13,11 +13,16 @@ const Footer = () => {
                     <div className="relative mt-auto mb-auto mr-1.5 ml-0.5">
                         <div className={`w-2 h-2 ${connected ? "bg-lime-600" : "bg-yellow-400"} rounded-full`}></div>
                     </div>
-                    {profile && (
+                    {profile && connected && (
                         <>
                             Welcome{` @`}
                             {profile.name}
                         </>
+                    )}
+                    { !connected && (
+                    <>
+                        Server is not connected
+                    </>
                     )}
 
                 </div>

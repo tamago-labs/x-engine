@@ -173,7 +173,7 @@ const Explorer = () => {
                         <button disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
                             <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
                             <div className="mr-auto ">
-                                Run
+                                Review
                             </div>
 
                         </button>
