@@ -24,7 +24,7 @@ const Settings = ({ visible, close }) => {
                 <label for="file-name" class="block text-white text-sm font-bold mb-2">Username:</label>
                 <input value={`@${profile && profile.name}`} type="text" id="file-name" name="file-name"  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
             </div> 
-            <p className="text-sm mt-2 text-center">You are currently using the alpha preview version of XReview where identities are randomly generated.</p>
+            <p className="text-sm mt-2 text-center">You are currently using the early preview version of XReview where identities are randomly generated.</p>
         </BaseModal>
     )
 }

@@ -1,15 +1,19 @@
 import { AccountContext } from "@/hooks/useAccount"
 import { useContext } from "react"
+import { X } from "react-feather"
 import Markdown from 'react-markdown'
 
 const Report = () => {
 
-    const { report } = useContext(AccountContext)
+    const { report, closeReport } = useContext(AccountContext)
 
 
     return (
         <>
-            <div className="p-6 text-white text-base max-h-[95vh]   overflow-auto">
+            <div className="p-6 pt-2 pr-4 text-white text-base max-h-[95vh] flex flex-col  overflow-auto">
+                <div onClick={() => closeReport()} className="ml-auto cursor-pointer">
+                    <X size={24}/>
+                </div>
                 <Markdown>{report}</Markdown> 
             </div>
             <style>

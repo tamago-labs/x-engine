@@ -43,11 +43,11 @@ const Provider = ({ children }) => {
     }
 
     const openReport = () => {
-        dispatch({ isOpen : true })
+        dispatch({ isOpen: true })
     }
 
     const closeReport = () => {
-        dispatch({ isOpen : false })
+        dispatch({ isOpen: false })
     }
 
     const checkQuota = async (slug) => {
@@ -117,8 +117,118 @@ const Provider = ({ children }) => {
 
     const loadProjects = async () => {
 
-        dispatch({ projects: EXAMPLE_CONTRACTS })
+        if (localStorage.getItem("projects")) {
+            const projects = localStorage.getItem("projects")
+            dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(JSON.parse(projects))) })
+        } else {
+            dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS) })
+        }
 
+    }
+
+    const createProject = async (project_name) => {
+
+        if (localStorage.getItem("projects")) {
+            const projects = JSON.parse(localStorage.getItem("projects"))
+            localStorage.setItem("projects", JSON.stringify(projects.concat([{
+                project_name,
+                files: []
+            }])))
+        } else {
+
+            const projects = [
+                {
+                    project_name,
+                    files: []
+                }
+            ]
+
+            localStorage.setItem("projects", JSON.stringify(projects))
+        }
+
+        const items = JSON.parse(localStorage.getItem("projects"))
+        dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(items)) })
+    }
+
+    const createFile = async (project_name, file_name) => {
+
+        if (localStorage.getItem(project_name)) {
+            const files = JSON.parse(localStorage.getItem(project_name))
+            localStorage.setItem(project_name, JSON.stringify(files.concat({
+                "file_name": file_name,
+                "editable" : true,
+                "source_code": "ICA="
+            })))
+        } else {
+
+            const files = [
+                {
+                    "file_name": file_name,
+                    "editable" : true,
+                    "source_code": "ICA="
+                }
+            ]
+
+            localStorage.setItem(project_name, JSON.stringify(files))
+        }
+
+        const items = JSON.parse(localStorage.getItem("projects"))
+        dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(items)) })
+    }
+
+    const attachFiles = (input) => {
+
+        for (let project of input) {
+            const project_name = project.project_name
+            if (localStorage.getItem(project_name)) {
+                const files = JSON.parse(localStorage.getItem(project_name))
+                project.files = project.files.concat(files)
+            }
+        }
+
+        return input
+    }
+
+    const deleteProject = async (project_name) => {
+
+        const item_list = JSON.parse(localStorage.getItem("projects"))
+        const new_list = item_list.filter(item => item.project_name !== project_name)
+
+        localStorage.setItem("projects", JSON.stringify(new_list))
+
+        try {
+            localStorage.removeItem(project_name)
+        } catch (e) {
+
+        }
+
+        dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(new_list)) })
+    }
+
+    const saveFile = async (project_name, file_name, source_code) => {
+
+        let file_list = JSON.parse(localStorage.getItem(project_name))
+
+        file_list.map((item) => { 
+            if (file_name === item.file_name) {
+                item.source_code = btoa(source_code)
+            }
+        })
+
+        localStorage.setItem(project_name, JSON.stringify(file_list))
+
+    }
+
+    const deleteFile = async (project_name, file_name) => {
+
+        const file_list = JSON.parse(localStorage.getItem(project_name))
+        const new_file_list = file_list.filter(item => item.file_name !== file_name)
+
+        localStorage.setItem(project_name, JSON.stringify(new_file_list))
+
+        const item_list = JSON.parse(localStorage.getItem("projects"))
+
+        dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(item_list)) })
     }
 
     useEffect(() => {
@@ -126,14 +236,12 @@ const Provider = ({ children }) => {
     }, [profile, tick])
 
     useEffect(() => {
-        console.log(profile && profile.slug, selected && selected.name)
         profile && selected && checkReport(profile.slug, selected.name)
     }, [profile, selected, tick])
 
-    console.log("erport", report)
-
     const accountContext = useMemo(
         () => ({
+            default_project: EXAMPLE_CONTRACTS[0].project_name,
             select,
             selected,
             loadProfile,
@@ -147,7 +255,12 @@ const Provider = ({ children }) => {
             checkReport,
             openReport,
             closeReport,
-            isOpen
+            isOpen,
+            createProject,
+            deleteProject,
+            createFile,
+            deleteFile,
+            saveFile
         }), [
         selected,
         profile,

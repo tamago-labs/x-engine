@@ -46,18 +46,14 @@ const Explorer = () => {
 
     const [modal, setModal] = useState(MODAL.NONE)
 
-    const { selected, select, loadProjects, projects, submit, profile, report, openReport, isOpen, closeReport } = useContext(AccountContext)
+    const { selected, select, default_project, loadProjects, projects, submit, profile, report, openReport, isOpen, closeReport } = useContext(AccountContext)
 
-    const [project_name, setProject] = useState()
+    const [project_name, setProject] = useState(default_project)
 
     useEffect(() => {
         select(undefined)
         loadProjects()
     }, [])
-
-    useEffect(() => {
-        projects && projects[0] && setProject(projects[0].project_name)
-    }, [projects])
 
     const onReview = useCallback(async () => {
 
@@ -95,18 +91,23 @@ const Explorer = () => {
                 visible={modal === MODAL.DELETE_FILE}
                 close={() => setModal(MODAL.NONE)}
                 selected={selected}
+                project_name={project_name}
             />
             <DeleteProjectModal
                 visible={modal === MODAL.DELETE_PROJECT}
                 close={() => setModal(MODAL.NONE)}
+                project_name={project_name}
+                setProject={setProject}
             />
             <NewProjectModal
                 visible={modal === MODAL.NEW_PROJECT}
                 close={() => setModal(MODAL.NONE)}
+                setProject={setProject}
             />
             <NewFileModal
                 visible={modal === MODAL.NEW_FILE}
                 close={() => setModal(MODAL.NONE)}
+                project_name={project_name}
             />
 
             <div className="flex flex-col">
@@ -162,7 +163,8 @@ const Explorer = () => {
                                     ...element,
                                     value: atob(fileData.source_code),
                                     raw_value: fileData.source_code,
-                                    project_name
+                                    project_name,
+                                    editable: fileData.editable ? true :false
                                 })
                             }}
                             aria-label="directory tree"
@@ -213,40 +215,34 @@ const Explorer = () => {
                     </div>
                 </div>
 
-                <div className="p-2 mt-1">
-                    <div className="border-neutral-600 border p-2 text-[#D4D4D4] pb-3 rounded">
+                <div className=" font-mono">
+                    <div className="text-white pb-3 ">
 
                         {!report && (
                             <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
-                                This file has not yet been reviewed 
+                                This file has not yet been reviewed
                             </div>
-                        )
-
-                        }
+                        )}
 
                         {report && (
                             <>
                                 <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
                                     The report is ready
-                                </div> 
+                                </div>
                             </>
-                        ) }
+                        )}
 
-                        <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}  text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
+                        {/* <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}  text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
                             <div className="ml-auto text-sm">
                                 {!isOpen ? "Open" : "Close"} Report
                             </div>
-                            {!isOpen 
-                            ?
-                            <ArrowRight size={16} className="mr-auto  mt-0.5 ml-0.5" />
-                            :
-                            <X size={16} className="mr-auto  mt-0.5 ml-0.5" />
-
+                            {!isOpen
+                                ?
+                                <ArrowRight size={16} className="mr-auto  mt-0.5 ml-0.5" />
+                                :
+                                <X size={16} className="mr-auto  mt-0.5 ml-0.5" />
                             }
-                            
-                        </button>
-
-
+                        </button> */}
                     </div>
                 </div>
 

@@ -1,63 +1,30 @@
 import { AccountContext } from '@/hooks/useAccount';
 import Editor from '@monaco-editor/react';
-import { X } from "react-feather"
-import { useContext, useEffect, useState } from 'react';
+import { ArrowRight, X } from "react-feather"
+import { useCallback, useContext, useEffect, useState } from 'react';
 
-const files = {
-    'script.js': {
-        name: 'script.js',
-        language: 'rust',
-        value: `
-module sui_example::sui_hello_world {
-
-    use std::string;
-    use sui::object::{Self, UID};
-    use sui::transfer;
-    use sui::tx_context::{Self, TxContext};
-
-    struct HelloWorldObject has key, store {
-        id: UID,
-        text: string::String
-    }
-
-    public entry fun mint(ctx: &mut TxContext) {
-        let object = HelloWorldObject {
-            id: object::new(ctx),
-            text: string::utf8(b"Hello World!")
-        };
-        transfer::public_transfer(object, tx_context::sender(ctx));
-    }
-
-}
-`,
-    },
-    'style.css': {
-        name: 'style.css',
-        language: 'css',
-        value: `
-border: 10px;
-      `,
-    },
-    'index.html': {
-        name: 'index.html',
-        language: 'html',
-        value: `
-<div>
-    hello from here
-</div>
-      `,
-    },
-};
 
 const SourceCode = () => {
 
-    const { loadProfile } = useContext(AccountContext)
-
-    const { selected, select } = useContext(AccountContext)
+    const { selected, select, loadProfile, openReport, isOpen, report, saveFile } = useContext(AccountContext)
 
     useEffect(() => {
         loadProfile()
     }, [])
+
+    const onSave = useCallback((value, event) => {
+
+        if (selected.editable) {
+ 
+            const file_name = selected.name
+            const project_name = selected.project_name
+
+            saveFile(project_name, file_name, value)
+
+        }
+
+    }, [selected])
+
 
     return (
         <div className='flex flex-col h-full text-[#D4D4D4] '>
@@ -72,6 +39,23 @@ const SourceCode = () => {
                         </div>
                     </div>
                 )}
+                {!isOpen && (
+                    <div className='ml-auto p-1 font-mono flex'>
+                        <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}    text-center  px-2 text-black mx-auto py-1  w-full  flex flex-row  rounded `}>
+                            <div className="ml-auto text-xs my-auto">
+                                {!isOpen ? "Open" : "Close"} Report
+                            </div>
+                            {!isOpen
+                                ?
+                                <ArrowRight size={14} className="my-auto" />
+                                :
+                                <X size={14} className="my-auto" />
+                            }
+                        </button>
+
+                    </div>
+                )}
+
             </div>
 
             {selected
@@ -82,15 +66,18 @@ const SourceCode = () => {
                     path={selected.name}
                     defaultLanguage={"rust"}
                     defaultValue={selected.value}
+                    onChange={onSave}
                 />
                 :
                 <div className='h-[80vh]'>
                 </div>
             }
-
-
-            <div className='flex-grow border-neutral-600 border-t font-mono p-4 text-sm'>
-                Welcome to XReview, an AI code review tool for Move contracts. This is an early preview version and free to use. Each user can submit up to 5 code review requests per day.
+            <div className='flex-grow border-neutral-600 border-t font-mono p-4 flex text-sm'>
+                <div className='my-auto'>
+                    <li>Welcome to XReview, an AI code review tool for Move contracts.</li>
+                    <li>This is an early preview version and may contain bugs or incomplete features. </li>
+                    <li>Each user can submit up to 5 code review requests per day.</li>
+                </div>
             </div>
 
         </div>
