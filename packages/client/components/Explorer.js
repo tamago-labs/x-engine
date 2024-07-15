@@ -53,7 +53,8 @@ const Explorer = () => {
     useEffect(() => {
         select(undefined)
         loadProjects()
-    }, [loadProjects, select])
+    // eslint-disable-line
+    }, [])
 
     const onReview = useCallback(async () => {
 
