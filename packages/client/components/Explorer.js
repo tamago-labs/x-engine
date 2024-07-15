@@ -139,9 +139,9 @@ const Explorer = () => {
                     </div>
                     <div className="col-span-5">
                         <select onChange={(e) => setProject(e.target.value)} id="countries" class="bg-gray-50 cursor-pointer font-mono border border-gray-300 text-gray-900 text-sm   focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            {projects.map((item) => {
+                            {projects.map((item, index) => {
                                 return (
-                                    <option selected={project_name === item.project_name} value={item.project_name}>{item.project_name}</option>
+                                    <option key={index} selected={project_name === item.project_name} value={item.project_name}>{item.project_name}</option>
                                 )
                             })}
                         </select>

@@ -10,7 +10,7 @@ const SourceCode = () => {
 
     useEffect(() => {
         loadProfile()
-    }, [])
+    }, [loadProfile])
 
     const onSave = useCallback((value, event) => {
 
@@ -23,7 +23,7 @@ const SourceCode = () => {
 
         }
 
-    }, [selected])
+    }, [selected, saveFile])
 
 
     return (
