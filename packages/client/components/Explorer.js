@@ -53,7 +53,7 @@ const Explorer = () => {
     useEffect(() => {
         select(undefined)
         loadProjects()
-    }, [])
+    }, [loadProjects, select])
 
     const onReview = useCallback(async () => {
 
