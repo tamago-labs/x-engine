@@ -1,0 +1,18 @@
+[package]
+name = "credit-system"
+version = "0.1.0"
+authors = []
+
+[addresses]
+credit_addr = "a354aea25485832cae78f9fa6593094af9d0b9f17f2a62f68e42ac81c8784d9d"
+aptos_framework = "0x1"
+aptos_fungible_asset = "0xA"
+
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dev-dependencies]
