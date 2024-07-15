@@ -39,7 +39,7 @@ const Layout = ({ children }) => {
                             </ul>
                             <ul className=" h-full flex flex-col">
                                 <li className="mt-auto mx-auto">
-                                    <Link href="/">
+                                    <Link href="https://github.com/tamago-labs/x-review">
                                         <div className="mx-auto py-3 justify-between p-2 cursor-pointer border-transparent border-l-4">
                                             <div className={`flex items-center justify-center opacity-60  `}>
                                                 <GitHub size={24} />
