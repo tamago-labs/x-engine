@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = []
 
 [addresses]
-credit_addr = "a354aea25485832cae78f9fa6593094af9d0b9f17f2a62f68e42ac81c8784d9d"
+credit_addr = "3f3896c568f230df468d432bb1af769f47c2eee7581af2d554fcd1f700705288"
 aptos_framework = "0x1"
 aptos_fungible_asset = "0xA"
 

@@ -19,7 +19,7 @@ describe('#db()', function () {
 
         let entry = await instance.getInfo()
         expect(entry["currentDailyLimit"]).equal(0)
-        expect(entry["maxDailyLimit"]).equal(5)
+        expect(entry["maxDailyLimit"]).equal(3)
         
         // add usages 
         entry = await instance.addUsage( entry, new Date().valueOf() )
@@ -28,7 +28,7 @@ describe('#db()', function () {
         
         entry = await instance.getInfo()
         expect(entry["currentDailyLimit"]).equal(3)
-        expect(entry["maxDailyLimit"]).equal(5)
+        expect(entry["maxDailyLimit"]).equal(3)
 
     })
 

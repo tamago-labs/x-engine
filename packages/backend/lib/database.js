@@ -35,7 +35,7 @@ class Database {
 
             const item = {
                 _id: "info",
-                maxDailyLimit: 5,
+                maxDailyLimit: 3,
                 created: new Date().valueOf(),
                 usageTimestamps: []
             }

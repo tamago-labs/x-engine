@@ -1,10 +1,27 @@
 import { AccountContext } from '@/hooks/useAccount';
+import useCredit from '@/hooks/useCredit';
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import Link from 'next/link';
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 const Footer = () => {
 
-    const { profile, connected, quota } = useContext(AccountContext)
+    const { account } = useWallet()
+    const address = account && account.address
+
+    const { profile, connected, quota, loadProfile } = useContext(AccountContext)
+
+    const [balance, setBalance] = useState(0)
+
+    const { getCreditBalance } = useCredit()
+
+    useEffect(() => {
+        address && getCreditBalance(address).then(setBalance)
+    }, [address])
+
+    useEffect(() => {
+        loadProfile()
+    }, [])
 
     return (
         <footer className="mt-auto bg-neutral-900 border-t border-neutral-600  ">
@@ -19,15 +36,15 @@ const Footer = () => {
                             {profile.name}
                         </>
                     )}
-                    { !connected && (
-                    <>
-                        Server is not connected
-                    </>
+                    {!connected && (
+                        <>
+                            Server is not connected
+                        </>
                     )}
 
                 </div>
                 <div className='flex ml-auto'>
-                    Daily quotas: {quota[0]}/{quota[1]}
+                    Daily quotas: {quota[0]}/{quota[1]} + {balance} credits
                 </div>
 
             </div>

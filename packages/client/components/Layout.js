@@ -2,10 +2,13 @@ import Link from "next/link"
 import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle } from "react-feather"
 import { useRouter } from "next/router"
 import Footer from "./Footer"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import SettingsModal from "../modals/settings"
+import { AccountContext } from "@/hooks/useAccount"
 
 const Layout = ({ children }) => {
+
+    const { profile } = useContext(AccountContext)
 
     const [modal, setModal] = useState(false)
 
@@ -27,6 +30,17 @@ const Layout = ({ children }) => {
                                         </div>
                                     </Link>
                                 </li>
+                                {profile && (
+                                    <li className={`${router.pathname.includes("report") ? "bg-neutral-700 border-blue-600 border-l-4" : " border-transparent border-l-4"} `}>
+                                        <Link href={`/report/${profile.slug}`}>
+                                            <div className="mx-auto py-3 justify-between p-2 cursor-pointer">
+                                                <div className={`flex items-center justify-center ${router.pathname.includes("report") ? "opacity-100" : "opacity-60"} hover:opacity-100`}>
+                                                    <Book size={24} />
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                )}
                                 <li className={`${router.pathname === "/help" ? "bg-neutral-700 border-blue-600 border-l-4" : " border-transparent border-l-4"} `}>
                                     <Link href="/help">
                                         <div className="mx-auto py-3 justify-between p-2 cursor-pointer">
@@ -58,7 +72,7 @@ const Layout = ({ children }) => {
                         </nav>
                     </aside>
                     <div className=" flex-grow overflow-x-hidden  ">
-                    {children}  
+                        {children}
                     </div>
                 </div>
                 <Footer />

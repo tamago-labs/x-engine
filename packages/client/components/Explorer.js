@@ -8,6 +8,7 @@ import DeleteFileModal from "@/modals/deleteFile";
 import DeleteProjectModal from "@/modals/deleteProject";
 import NewProjectModal from "@/modals/newProject";
 import NewFileModal from "@/modals/newFile";
+import Link from 'next/link';
 
 const FolderIcon = ({ isOpen }) =>
     isOpen ? (
@@ -189,15 +190,8 @@ const Explorer = () => {
                         />
                     </div>
                 </div>
-                <div className="grid grid-cols-1 xl:grid-cols-3 text-center px-1  text-sm my-1">
-                    <div className="col-span-1 p-1  ">
-                        <button onClick={onReview} disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
-                            <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
-                            <div className="mr-auto ">
-                                Review
-                            </div>
-                        </button>
-                    </div>
+                <div className="grid grid-cols-1 xl:grid-cols-2 text-center px-1  text-sm my-1">
+                    
                     <div className="col-span-1 p-1  ">
                         <button onClick={() => setModal(MODAL.NEW_FILE)} class={`bg-white   text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
                             <Plus size={14} className="ml-auto mt-0.5 mr-0.5" />
@@ -211,6 +205,14 @@ const Explorer = () => {
                             <Trash2 size={14} className="ml-auto mt-0.5 mr-0.5" />
                             <div className="mr-auto ">
                                 Delete
+                            </div>
+                        </button>
+                    </div>
+                    <div className="col-span-2 p-1  ">
+                        <button onClick={onReview} disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
+                            <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
+                            <div className="mr-auto ">
+                                Review
                             </div>
                         </button>
                     </div>
@@ -228,7 +230,7 @@ const Explorer = () => {
                         {report && (
                             <>
                                 <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
-                                    The report is ready
+                                    The report is ready{` `}<Link href={`/report/${profile.slug}`} className="underline">{`>>`}</Link>
                                 </div>
                             </>
                         )}
