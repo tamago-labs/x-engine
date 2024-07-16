@@ -1,8 +1,8 @@
 
 
-// export const HOST = "https://xreview-api.tamago.finance"
+export const HOST = "https://xreview-api.tamago.finance"
 
-export const HOST = "http://localhost:8000"
+// export const HOST = "http://localhost:8000"
 
 export const CONTRACT_ADDRESS = "0x3f3896c568f230df468d432bb1af769f47c2eee7581af2d554fcd1f700705288"
 
