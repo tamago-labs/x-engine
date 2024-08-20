@@ -44,7 +44,7 @@ const Footer = () => {
 
                 </div>
                 <div className='flex ml-auto'>
-                    Daily quotas: {quota[0]}/{quota[1]} + {balance} credits
+                    {/* Daily quotas: {quota[0]}/{quota[1]} + {balance} credits */}
                 </div>
 
             </div>

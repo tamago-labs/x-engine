@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { ArrowRight, X } from "react-feather"
 import { useCallback, useContext, useEffect, useState } from 'react';
 import WalletConnect from './WalletConnect';
+import WalletHeader from './WalletHeader';
 
 const SourceCode = () => {
 
@@ -38,24 +39,8 @@ const SourceCode = () => {
                                 <X size={16} className='ml-1.5 mb-0.5 cursor-pointer' />
                             </div>
                         </div>
-                    )}
-                    {/* {!isOpen && (
-                        <div className='ml-auto p-1 font-mono flex'>
-                            <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}    text-center  px-2 text-black mx-auto py-1  w-full  flex flex-row  rounded `}>
-                                <div className="ml-auto text-xs my-auto">
-                                    {!isOpen ? "Open" : "Close"} Report
-                                </div>
-                                {!isOpen
-                                    ?
-                                    <ArrowRight size={14} className="my-auto" />
-                                    :
-                                    <X size={14} className="my-auto" />
-                                }
-                            </button>
-
-                        </div>
-                    )} */}
-                    <WalletConnect />
+                    )} 
+                    <WalletHeader/>
 
                 </div>
 

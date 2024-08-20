@@ -1,11 +1,17 @@
-import HelpPanel from "@/components/Help";
-import Layout from "@/components/Layout"; 
+import HelpPanel from "@/components/Help"; 
+// import dynamic from 'next/dynamic'
+import MainLayout from "@/layouts/Main";
+
+// const MainLayout = dynamic(() => import("@/layouts/Main"), {
+//     ssr: false,
+// })
+
 
 const HelpPage = () => {
     return (
-        <Layout>
+        <MainLayout>
             <HelpPanel/>
-        </Layout>
+        </MainLayout>
     )
 }
 
