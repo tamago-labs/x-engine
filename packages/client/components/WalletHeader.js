@@ -16,8 +16,16 @@ import useInactiveListener from "@/hooks/useInactiveListener";
 import useEagerConnect from "@/hooks/useEagerConnect";
 
 import { Connectors } from "../constants"
+import { shortAddress } from "@/helpers";
 
 const ConnectButtonAptos = () => {
+
+    const { account } = useWallet()
+
+    const address = account && account.address
+
+
+
     return (
         <>
             <WalletSelector />
@@ -31,8 +39,10 @@ const ConnectButtonAptos = () => {
                             color: #222;
                             font-family: monospace, monospace;
                             font-size: 14px;
-                            border-radius: 4px;
+                            border-radius: 4px; 
                         } 
+
+                        
                     `
                 }
             </style>
@@ -71,7 +81,7 @@ const ConnectButtonEVM = () => {
                 :
                 <>
                     <button onClick={() => deactivate()} class={`bg-white text-center text-black mr-1.5 w-[200px] rounded `}>
-                        Disconnect
+                        {shortAddress(account)}
                     </button>
                 </>
 
@@ -88,13 +98,14 @@ const ConnectButtonSui = () => {
     const isTestnet = connected && account && account.chains && account.chains[0] === "sui:testnet" ? true : false
 
 
+
     return (
         <>
             {wallet && wallet.connected ? (
                 <button onClick={() => {
                     wallet.disconnect()
                 }} type="button" className="bg-white text-center text-black mr-1.5 w-[200px] rounded">
-                    Disconnect
+                    { shortAddress(address)}
                 </button>
             ) :
                 <ConnectButton style={{ width: "200px", borderRadius: "4px", fontSize :"14px", paddingTop:"5px", paddingBottom:"5px", backgroundColor:"white", color:"black" , fontWeight : "normal", fontFamily:"unset"}}>

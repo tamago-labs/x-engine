@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import Footer from "./Footer"
+import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle, CheckCircle, CheckSquare, Package, Inbox, Activity, Feather } from "react-feather"
 import { useContext, useState } from "react"
 import { AccountContext } from "@/hooks/useAccount"
 import { ModalContext } from "@/hooks/useModal"
