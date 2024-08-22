@@ -1,4 +1,4 @@
-# AI-Powered Code Review for Smart Contracts
+# AI-Powered Code Review for Move Smart Contracts
 
 Smart contract audits are costly, especially today when the focus isn't solely on the Ethereum chain. Deploying smart contracts to multiple chains requires separate audits for each chain and each smart contract language, making it impossible for smaller projects to afford.
 
@@ -9,6 +9,7 @@ We provide an AI solution for quickly reviewing smart contracts and generating r
 ## Features
 
 * Powered by Claude AI, Voyage AI and Langchain
+* Built for Move (Aptos, Sui)
 * RAG-based training with various vulnerability patterns
 * Automatic report generator
 * Built-in IDE
