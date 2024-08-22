@@ -18,7 +18,7 @@ We provide an AI solution for quickly reviewing smart contracts and generating r
 
 There are several use cases for the AI code review tool as follows:
 
-* Expansion to Move-based chains requires low-cost alternative code reviews that can be immediately shared with the community.
+* Expansion to Move-based chains (Aptos, Sui, Movement).
 * Currently developing Move-native applications and preparing for a full security audit.
 * The project is in its early stages and needs a code review report to gain early traction.
 
@@ -89,6 +89,8 @@ The project is currently in the early stages of development. We are working on t
 - Reviewing based on these vulnerabilities.
 - Account creation allows the report to be shared publicly.
 - Gamification credit system.
+
+## Links
 
 Follow our social channels for further updates
 
