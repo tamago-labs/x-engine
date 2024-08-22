@@ -1,5 +1,7 @@
 # AI-Powered Code Review for Move Smart Contracts
 
+**The project started and received 1st place in the AI x Web3 track at the [ moveonaptos.dev](https://moveonaptos.dev/) hackathon in July'24.**
+
 Smart contract audits are costly, especially today when the focus isn't solely on the Ethereum chain. Deploying smart contracts to multiple chains requires separate audits for each chain and each smart contract language, making it impossible for smaller projects to afford.
 
 We provide an AI solution for quickly reviewing smart contracts and generating reports to share with the community. This is particularly useful when releasing minor versions, expanding to new chains or when the project is still at a very early stage and cannot afford to pay for a full audit.
@@ -84,11 +86,12 @@ npm run test-credit
 
 ## Roadmap
 
-The project is currently in the early stages of development. We are working on the following improvements for our beta version:
+We are working on the following improvements for our upcoming beta version:
 - Summarizing common vulnerabilities in Move contracts into a specification.
 - Reviewing based on these vulnerabilities.
-- Account creation allows the report to be shared publicly.
+- The more vulnerabilities checked, the more credits paid.
 - Gamification credit system.
+- Account creation allows the report to be shared publicly.
 
 ## Links
 
