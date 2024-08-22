@@ -95,6 +95,7 @@ The project is currently in the early stages of development. We are working on t
 Follow our social channels for further updates
 
 - https://twitter.com/Tamago_Labs
+- https://tamagolabs.com
 - https://discord.com/invite/jNGqJCsegp
 - https://www.facebook.com/tamagolabs
 
