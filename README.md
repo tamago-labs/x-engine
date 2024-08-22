@@ -14,6 +14,14 @@ We provide an AI solution for quickly reviewing smart contracts and generating r
 * Automatic report generator
 * Built-in IDE
 
+## Use Cases
+
+There are several use cases for the AI code review tool as follows:
+
+* Expansion to Move-based chains requires low-cost alternative code reviews that can be immediately shared with the community.
+* Currently developing Move-native applications and preparing for a full security audit.
+* The project is in its early stages and needs a code review report to gain early traction.
+
 ## Backend
 
 The backend made with Node.js and Express.js, serves as the core of the project. It contains API services and a simple queue system to process source code sent by users to external API services one by one. 
@@ -73,6 +81,16 @@ Tests for the smart contract and backend can also be run by:
 npm run test-backend
 npm run test-credit
 ```
+
+## Roadmap
+
+The project is currently in the early stages of development. We are working on the following improvements for our beta version:
+- Summarizing common vulnerabilities in Move contracts into a specification.
+- Reviewing based on these vulnerabilities.
+- Account creation allows the report to be shared publicly.
+- Gamification credit system.
+
+Follow our social channels for further updates
 
 ## License
 
