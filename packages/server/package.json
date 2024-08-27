@@ -1,12 +1,12 @@
 {
-    "name": "backend",
+    "name": "server",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "node index.js",
-        "test": "mocha --timeout 60000 --reporter spec test/*.js"
+        "dev": "node src/index.js",
+        "test": "mocha --timeout 60000 --reporter spec src/test/*.js"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
@@ -19,8 +19,11 @@
         "cors": "^2.8.5",
         "cross-blob": "^3.0.2",
         "dotenv": "^16.4.5",
+        "envalid": "^8.0.0",
         "express": "^4.18.2",
+        "express-rate-limit": "^7.2.0",
         "fastq": "^1.15.0",
+        "helmet": "^7.1.0",
         "isomorphic-git": "^1.27.1",
         "keccak256": "^1.0.6",
         "langchain": "^0.2.9",

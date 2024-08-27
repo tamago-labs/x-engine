@@ -7,9 +7,8 @@
     "scripts": {
         "bootstrap": "npm install; lerna bootstrap;",
         "package:client": "lerna run --scope client --stream dev",
-        "package:backend": "lerna run --scope backend --stream dev",
-        "test-backend": "lerna run --scope backend --stream test",
-        "test-credit": "lerna run --scope credit --stream test",
+        "package:server": "lerna run --scope server --stream dev",
+        "test-server": "lerna run --scope server --stream test", 
         "start": "run-p --print-label package:*",
         "build": "lerna run --parallel build"
     },
