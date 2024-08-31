@@ -1,43 +1,77 @@
 import PouchDB from 'pouchdb'
-import Auth from "pouchdb-auth"
-
-PouchDB.plugin(Auth)
+import { env } from "../utils/envConfig.js"
 
 // Account management class
 
 class Account {
 
     constructor() {
-        this.db = new PouchDB('_users')
+        this.db = new PouchDB(`${env.NODE_ENV}:account`)
     }
 
-    init = async () => {
-        await this.db.useAsAuthenticationDB()
-    }
+    // Password should be hashed on the client side
+    signUp = async (email, password) => {
 
-    signUp = async (username, password) => {
-
-        if (username.length <= 4) {
-            throw new Error("Username should have at least four characters")
+        if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) === false) {
+            throw new Error("Invalid Email")
         }
 
-        if (/^(?=.*?[a-z])(?=.*?[0-9]).{8,}$/.test(password)) {
-            await this.db.signUp(username, password)
-        } else {
-            throw new Error("Password should have at least eight characters, including at least one letter and one number")
+        const item = {
+            _id: email,
+            password,
+            credits: 30,
+            created: new Date().valueOf(),
+            messages: [
+                "An initial credit of 30 credits has been applied to your account"
+            ],
+            timestamps: [
+                new Date().valueOf()
+            ]
+        }
+
+        await this.db.put(item)
+    }
+
+    logIn = async (email, password) => {
+
+        try {
+            let entry = await this.db.get(email)
+ 
+            if (entry.password !== password) { 
+                throw new Error("Password mismatched")
+            }
+
+            // add daily free credits
+            const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
+            const yesterdayTs = yesterday.valueOf()
+
+            const dailyCount = entry.timestamps.filter(item => item > yesterdayTs).length
+
+            if (dailyCount === 0) {
+                entry.credits = entry.credits+5
+                entry.messages.push("You’ve received your 5 free daily credits")
+                entry.timestamps.push(new Date().valueOf())
+
+                await this.db.put(entry) 
+            }
+
+            return {
+                email,
+                credits: entry.credits,
+                created: entry.created,
+                messages: entry.messages
+            }
+        } catch (e) {
+            if (e.message === "missing") {
+                throw new Error("Given email not found")
+            } else {
+                throw e
+            }
         }
 
     }
 
-    logIn = async (username, password) => {
-        const { sessionID } = await this.db.multiUserLogIn(username, password)
-        return sessionID
-    }
 
-    checkSession = async (currentSessionID) => {
-        const { sessionID } = await this.db.multiUserSession(currentSessionID)
-        return sessionID
-    }
 
     destroy = async () => {
         await this.db.destroy();
