@@ -1,5 +1,5 @@
 {
-    "name": "x-review",
+    "name": "x-engine",
     "private": true,
     "workspaces": [
         "packages/*"

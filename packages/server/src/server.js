@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors"
 import helmet from "helmet"
 import rateLimiter from "./middleware/rateLimiter.js";
+import Account from "./core/account.js";
 
 export const app = express()
 
@@ -15,10 +16,62 @@ app.use(cors())
 app.use(helmet())
 app.use(rateLimiter)
 
+const account = new Account()
+
 // Routes
 
 // health-check
 app.get('/', async (req, res) => {
+
+    try {
+        await account.init()
+    } catch (e) {
+        // already init()
+    }
+
     return res.status(200).json({ status: "ok" });
 })
+
+app.post("/auth/signup", async (req, res) => {
+
+    const { body } = req
+    const { username, password } = body
+
+    try {
+        await account.signUp(username, password)
+        return res.status(200).json({ status: "ok", username })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+app.post("/auth/login", async (req, res) => {
+
+    const { body } = req
+    const { username, password } = body
+
+    try {
+        const sessionId = await account.logIn(username, password)
+        return res.status(200).json({ status: "ok", username, sessionId })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+app.get("/auth/session/:id", async (req, res) => {
+
+    const { params } = req
+    const { id } = params
+
+    try {
+        await account.checkSession(id)
+        return res.status(200).json({ status: "ok" })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
 
