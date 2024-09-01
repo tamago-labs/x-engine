@@ -7,7 +7,7 @@ class DocumentStore {
 
     constructor(accountName) {
         this.accountName = accountName
-        this.pouchDb = new PouchDB(accountName)
+        this.db = new PouchDB(accountName)
     }
 
     // Key - This can be a filename like Pool.move or a classification such as MWC-102
@@ -15,7 +15,7 @@ class DocumentStore {
     add = async (key, value, override = false) => {
 
         try {
-            let entry = await this.pouchDb.get(key) 
+            let entry = await this.db.get(key) 
 
             if (override) {
                 entry.data = value
@@ -24,20 +24,20 @@ class DocumentStore {
                 const mergedResult = Buffer.from(bothData.toString(), 'binary').toString('base64'); 
                 entry.data = mergedResult
             }
-            await this.pouchDb.put(entry)
+            await this.db.put(entry)
         } catch (e) {
             const item = {
                 _id: key,
                 data: value
             }
-            await this.pouchDb.put(item) 
+            await this.db.put(item) 
         }
     }
 
     // Retrieve data of a single file from the database
     getFile = async (key) => {
         try { 
-            const entry = await this.pouchDb.get(key) 
+            const entry = await this.db.get(key) 
             return entry.data
         } catch (e) {
             return 
@@ -59,7 +59,7 @@ class DocumentStore {
     }
 
     destroy = async () => {
-        await this.pouchDb.destroy();
+        await this.db.destroy();
     }
 
 }

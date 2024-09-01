@@ -6,6 +6,8 @@ import Account from "./core/account.js";
 
 export const app = express()
 
+const account = new Account()
+
 // Set the application to trust the reverse proxy
 app.set("trust proxy", true);
 
@@ -15,8 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors())
 app.use(helmet())
 app.use(rateLimiter)
-
-const account = new Account()
 
 // Routes
 
@@ -52,26 +52,10 @@ app.post("/auth/login", async (req, res) => {
     const { username, password } = body
 
     try {
-        const sessionId = await account.logIn(username, password)
-        return res.status(200).json({ status: "ok", username, sessionId })
+        const response = await account.logIn(username, password)
+        return res.status(200).json({ status: "ok", ...response })
     } catch (e) {
         return res.status(500).json({ status: "error", message: e.message })
     }
 
 })
-
-app.get("/auth/session/:id", async (req, res) => {
-
-    const { params } = req
-    const { id } = params
-
-    try {
-        await account.checkSession(id)
-        return res.status(200).json({ status: "ok" })
-    } catch (e) {
-        return res.status(500).json({ status: "error", message: e.message })
-    }
-
-})
-
-

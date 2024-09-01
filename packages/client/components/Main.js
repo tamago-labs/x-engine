@@ -27,9 +27,7 @@ const Main = () => {
                 <div className={`${isOpen ? "col-span-4" : "col-span-8"} bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
                     <Report/>
                 </div>
-            )
-
-            }
+            )}
         </div>
     )
 }

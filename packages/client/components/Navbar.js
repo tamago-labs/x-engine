@@ -1,6 +1,6 @@
 import { useRouter } from "next/router"
 import Link from "next/link"
-import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle, CheckCircle, CheckSquare, Package, Inbox, Activity, Feather } from "react-feather"
+import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle, CheckCircle, CheckSquare, Package, Inbox, Activity, Feather, Clock, Table } from "react-feather"
 import { useContext } from "react"
 import { ModalContext } from "@/hooks/useModal"
 
@@ -26,7 +26,7 @@ const Navbar = () => {
                     <Link href={`/report/xxx`}>
                         <div className="mx-auto py-3 justify-between p-2 cursor-pointer">
                             <div className={`flex items-center justify-center ${router.pathname.includes("report") ? "opacity-100" : "opacity-60"} hover:opacity-100`}>
-                                <Inbox size={24} />
+                                <Table size={24} />
                             </div>
                         </div>
                     </Link>
@@ -35,7 +35,7 @@ const Navbar = () => {
                     <Link href="/activity">
                         <div className="mx-auto py-3 justify-between p-2 cursor-pointer">
                             <div className={`flex items-center justify-center ${router.pathname === "/activity" ? "opacity-100" : "opacity-60"} hover:opacity-100`}>
-                                <Activity size={24} />
+                                <Clock size={24} />
                             </div>
                         </div>
                     </Link>

@@ -1,24 +1,25 @@
 import { useState, useEffect, useContext } from "react"
-import WalletLayout from "./Wallet"
 import Footer from "@/components/Footer"
 import Navbar from "@/components/Navbar"
 
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-import { LayoutContext } from "@/hooks/useLayout";
+import { LayoutContext } from "@/hooks/useLayout"; 
+import { AuthContext } from "@/hooks/useAuth";
 
 const MainLayout = ({ children }) => {
 
     const [showLoader, setShowLoader] = useState(true);
     const { selectNetwork } = useContext(LayoutContext)
+    const { checkSession } = useContext(AuthContext)
 
     useEffect(() => {
 
         const screenLoader = document.getElementsByClassName('screen_loader');
-        if (screenLoader?.length) { 
+        if (screenLoader?.length) {
             setTimeout(() => {
-                setShowLoader(false); 
+                setShowLoader(false);
             }, 200);
         }
 
@@ -30,9 +31,14 @@ const MainLayout = ({ children }) => {
         });
     }, []);
 
-    return (
-        <WalletLayout>
+    useEffect(() => {
+        !showLoader && checkSession()
+    },[showLoader])
 
+
+
+    return (
+        <>
             {/* screen loader  */}
             {showLoader && (
                 <div className="screen_loader fixed inset-0 z-[60] grid place-content-center bg-neutral-800">
@@ -97,13 +103,13 @@ const MainLayout = ({ children }) => {
                     <aside className=" bg-neutral-800 text-white w-[60px] flex flex-col min-h-screen   border-r border-neutral-600  ">
                         <Navbar />
                     </aside>
-                    <div className=" flex-grow overflow-x-hidden"> 
+                    <div className=" flex-grow overflow-x-hidden">
                         {children}
                     </div>
                 </div>
                 <Footer />
             </div>
-        </WalletLayout>
+        </>
     )
 }
 

@@ -2,7 +2,7 @@
 import dynamic from 'next/dynamic'
 import MainLayout from "@/layouts/Main";
 
-const Report = dynamic(() => import("../../components/ReportNew"), {
+const Report = dynamic(() => import("../../components/Report"), {
     ssr: false,
 })
 

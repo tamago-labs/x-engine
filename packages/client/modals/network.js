@@ -4,7 +4,7 @@ import { useCallback, useContext } from "react"
 
 const Network = ({ visible, close }) => {
 
-    const { selectSui, selectEth, selectAptos } = useContext(LayoutContext)
+    const { selectSui, selectAptos } = useContext(LayoutContext)
 
     const savePage = (networkName) => {
         localStorage.setItem("xreviewNetwork", networkName)
@@ -19,6 +19,42 @@ const Network = ({ visible, close }) => {
         >
             <div className="grid grid-cols-2  gap-2.5 mt-4 mb-2">
                 <div onClick={() => {
+                    savePage("Aptos")
+                    selectAptos()
+                    close()
+                }} className={`col-span-1 p-2  rounded-md border bg-neutral-900 h-[125px] flex-1 border-neutral-700 cursor-pointer flex`}>
+                    <div className="mx-auto w-[150px] flex px-2 flex-col">
+                        <div className="w-[50px] mt-auto mx-auto p-2">
+                            <img
+                                className="h-full w-full object-contain object-center rounded-full"
+                                src={"/assets/aptos-logo.png"}
+                                alt=""
+                            />
+                        </div>
+                        <div className="p-2 px-1 mb-auto mx-auto text-center  ">
+                            <h3 className="font-medium text-base leading-4 text-white">Aptos</h3>
+                        </div>
+                    </div>
+                </div>
+                <div onClick={() => {
+                    savePage("Sui")
+                    selectSui()
+                    close()
+                }} className={`col-span-1 p-2  rounded-md  border bg-neutral-900  h-[125px] flex-1 border-neutral-700 cursor-pointer flex`}>
+                    <div className="mx-auto w-[150px] px-2 flex flex-col">
+                        <div className="w-[55px] mt-auto mx-auto p-2">
+                            <img
+                                className="h-full w-full object-contain object-center rounded-full"
+                                src={"/assets/sui-logo.svg"}
+                                alt=""
+                            />
+                        </div>
+                        <div className="p-2 px-1 mb-auto  mx-auto text-center  ">
+                            <h3 className="font-medium text-base leading-4 text-white">Sui</h3>
+                        </div>
+                    </div>
+                </div>
+                {/* <div onClick={() => {
                     savePage("Aptos")
                     selectAptos()
                     close()
@@ -53,8 +89,8 @@ const Network = ({ visible, close }) => {
                             <h3 className="font-medium text-base leading-4 text-white">Sui</h3>
                         </div>
                     </div>
-                </div>
-                <div onClick={() => {
+                </div> */}
+                {/* <div onClick={() => {
                     savePage("Ethereum")
                     selectEth()
                     close()
@@ -71,7 +107,7 @@ const Network = ({ visible, close }) => {
                             <h3 className="font-medium text-base leading-4 text-white">Ethereum</h3>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </BaseModal>
     )

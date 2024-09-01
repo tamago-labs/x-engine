@@ -1,10 +1,8 @@
 import { AccountContext } from '@/hooks/useAccount';
 import Editor from '@monaco-editor/react';
 import { ArrowRight, X } from "react-feather"
-import { useCallback, useContext, useEffect, useState } from 'react';
-import WalletConnect from './WalletConnect';
-import WalletHeader from './WalletHeader';
-
+import { useCallback, useContext, useEffect, useState } from 'react';  
+import AuthHeader from './AuthHeader';
 const SourceCode = () => {
 
     const { selected, select, openReport, isOpen, report, saveFile } = useContext(AccountContext)
@@ -40,7 +38,7 @@ const SourceCode = () => {
                             </div>
                         </div>
                     )} 
-                    <WalletHeader/>
+                    <AuthHeader/>
 
                 </div>
 

@@ -4,14 +4,11 @@ export const LayoutContext = createContext({})
 
 const NETWORK = {
     APTOS: "Aptos",
-    SUI: "Sui",
-    ETH: "Ethereum"
+    SUI: "Sui"
 }
 
 
 const Provider = ({ children }) => {
-
-
 
     const [values, dispatch] = useReducer(
         (curVal, newVal) => ({ ...curVal, ...newVal }),
@@ -28,7 +25,6 @@ const Provider = ({ children }) => {
             allNetworks: NETWORK,
             selectSui: () => dispatch({ network: NETWORK.SUI }),
             selectAptos: () => dispatch({ network: NETWORK.APTOS }),
-            selectEth: () => dispatch({ network: NETWORK.ETH }),
             selectNetwork: (networkName) => dispatch({ network: networkName }),
         }), [
         network
