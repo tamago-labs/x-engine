@@ -1,5 +1,6 @@
 import PouchDB from 'pouchdb'
 import { env } from "../utils/envConfig.js"
+import { ethers } from "ethers"
 
 // Account management class
 
@@ -36,8 +37,8 @@ class Account {
 
         try {
             let entry = await this.db.get(email)
- 
-            if (entry.password !== password) { 
+
+            if (entry.password !== password) {
                 throw new Error("Password mismatched")
             }
 
@@ -48,14 +49,15 @@ class Account {
             const dailyCount = entry.timestamps.filter(item => item > yesterdayTs).length
 
             if (dailyCount === 0) {
-                entry.credits = entry.credits+5
+                entry.credits = entry.credits + 5
                 entry.messages.push("You’ve received your 5 free daily credits")
                 entry.timestamps.push(new Date().valueOf())
 
-                await this.db.put(entry) 
+                await this.db.put(entry)
             }
 
             return {
+                sessionId: ethers.hashMessage(`${email}${entry.created}`), // use simple hash with no expiration on this beta
                 email,
                 credits: entry.credits,
                 created: entry.created,
