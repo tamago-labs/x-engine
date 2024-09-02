@@ -86,7 +86,7 @@ module mswc_registry::aptos_simple_dao {
 
   public entry fun donate(sender: &signer, amount: u64, to_address: address) acquires DAO {
     let dao = borrow_global_mut<DAO>(@mswc_registry);
-    let dao_signer = object::generate_signer_for_extending(&pool.extend_ref);
+    let dao_signer = object::generate_signer_for_extending(&dao.extend_ref);
 
     let deposit_coin = coin::withdraw<AptosCoin>(sender, amount);
     coin::deposit( signer::address_of(&dao_signer), deposit_coin);
@@ -102,12 +102,12 @@ module mswc_registry::aptos_simple_dao {
 
   public entry fun withdraw(sender: &signer, amount: u64) acquires DAO {
     let dao = borrow_global_mut<DAO>(@mswc_registry);
-    let dao_signer = object::generate_signer_for_extending(&pool.extend_ref);
+    let dao_signer = object::generate_signer_for_extending(&dao.extend_ref);
 
     *table::borrow_mut(&mut dao.credit_table, signer::address_of(sender)) = *table::borrow(&dao.credit_table, signer::address_of(sender))-amount;
     dao.balance = dao.balance-amount;
 
-    let withdrawn_coin = coin::withdraw<AptosCoin>(&pool_signer, amount);
+    let withdrawn_coin = coin::withdraw<AptosCoin>(&dao_signer, amount);
     coin::deposit( signer::address_of(sender), withdrawn_coin);
   }
  
@@ -128,7 +128,7 @@ module mswc_registry::aptos_simple_dao_fixed {
 
   public entry fun donate(sender: &signer, amount: u64, to_address: address) acquires DAO {
     let dao = borrow_global_mut<DAO>(@mswc_registry);
-    let dao_signer = object::generate_signer_for_extending(&pool.extend_ref);
+    let dao_signer = object::generate_signer_for_extending(&dao.extend_ref);
 
     let deposit_coin = coin::withdraw<AptosCoin>(sender, amount);
     coin::deposit( signer::address_of(&dao_signer), deposit_coin);
@@ -144,9 +144,9 @@ module mswc_registry::aptos_simple_dao_fixed {
 
   public entry fun withdraw(sender: &signer, amount: u64) acquires DAO {
     let dao = borrow_global_mut<DAO>(@mswc_registry);
-    let dao_signer = object::generate_signer_for_extending(&pool.extend_ref);
+    let dao_signer = object::generate_signer_for_extending(&dao.extend_ref);
 
-    let withdrawn_coin = coin::withdraw<AptosCoin>(&pool_signer, amount);
+    let withdrawn_coin = coin::withdraw<AptosCoin>(&dao_signer, amount);
     coin::deposit( signer::address_of(sender), withdrawn_coin);
 
     *table::borrow_mut(&mut dao.credit_table, signer::address_of(sender)) = *table::borrow(&dao.credit_table, signer::address_of(sender))-amount;
