@@ -16,6 +16,7 @@
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "bignumber.js": "^9.1.2",
+    "ethers": "^6.13.2",
     "next": "14.2.4",
     "react": "^18",
     "react-accessible-treeview": "^2.9.1",
