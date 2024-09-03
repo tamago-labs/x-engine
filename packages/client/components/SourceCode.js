@@ -12,12 +12,9 @@ const SourceCode = () => {
     const onSave = useCallback((value, event) => {
 
         if (selected.editable) {
-
             const file_name = selected.name
             const project_name = selected.project_name
-
-            saveFile(project_name, file_name, value)
-
+            saveFile(selected, project_name, file_name, value)
         }
 
     }, [selected, saveFile])

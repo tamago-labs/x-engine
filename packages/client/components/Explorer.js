@@ -45,7 +45,7 @@ const MODAL = {
     NEW_FILE: "NEW_FILE",
     REVIEW: "REVIEW",
     REVIEW_DONE: "REVIEW_DONE"
-} 
+}
 
 const Explorer = () => {
 

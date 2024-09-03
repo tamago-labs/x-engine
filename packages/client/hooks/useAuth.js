@@ -21,7 +21,7 @@ const Provider = ({ children }) => {
     const host = process.env.HOST || "localhost"
     const prefix = host === "localhost" ? "http" : "https"
     const port = process.env.PORT || "8000"
-
+    
     const hostname = `${prefix}://${host}:${port}`
 
     const checkSession = useCallback(async () => {
