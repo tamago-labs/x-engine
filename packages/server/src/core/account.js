@@ -49,8 +49,8 @@ class Account {
             const dailyCount = entry.timestamps.filter(item => item > yesterdayTs).length
 
             if (dailyCount === 0) {
-                entry.credits = entry.credits + 5
-                entry.messages.push("You’ve received your 5 free daily credits")
+                entry.credits = entry.credits + 10
+                entry.messages.push("You’ve received your 10 free daily credits")
                 entry.timestamps.push(new Date().valueOf())
 
                 await this.db.put(entry)
@@ -71,6 +71,33 @@ class Account {
             }
         }
 
+    }
+
+    deduct = async (account, sessionId, filename, credit) => {
+        try {
+            let entry = await this.db.get(account)
+
+            if (ethers.hashMessage(`${account}${entry.created}`) !== sessionId) {
+                throw new Error("Invalid session ID")
+            }
+
+            if (entry.credits < credit) {
+                throw new Error("Insufficient credits")
+            }
+
+            entry.credits = entry.credits - credit
+            entry.messages.push(`Received submission request for ${filename}`)
+            entry.timestamps.push(new Date().valueOf())
+
+            await this.db.put(entry)
+
+        } catch (e) {
+            if (e.message === "missing") {
+                throw new Error("Given email not found")
+            } else {
+                throw e
+            }
+        }
     }
 
 

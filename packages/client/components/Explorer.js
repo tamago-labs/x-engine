@@ -9,6 +9,8 @@ import DeleteProjectModal from "@/modals/deleteProject";
 import NewProjectModal from "@/modals/newProject";
 import NewFileModal from "@/modals/newFile";
 import Link from 'next/link';
+import BaseModal from "@/modals/base";
+import { AuthContext } from "@/hooks/useAuth";
 
 const FolderIcon = ({ isOpen }) =>
     isOpen ? (
@@ -40,21 +42,25 @@ const MODAL = {
     DELETE_PROJECT: "DELETE_PROJECT",
     DELETE_FILE: "DELETE_FILE",
     NEW_PROJECT: "NEW_PROJECT",
-    NEW_FILE: "NEW_FILE"
-}
+    NEW_FILE: "NEW_FILE",
+    REVIEW: "REVIEW",
+    REVIEW_DONE: "REVIEW_DONE"
+} 
 
 const Explorer = () => {
 
     const [modal, setModal] = useState(MODAL.NONE)
 
-    const { selected, select, default_project, loadProjects, projects, submit, profile, report, openReport, isOpen, closeReport } = useContext(AccountContext)
+    const { session, submit } = useContext(AuthContext)
+
+    const { selected, select, default_project, loadProjects, projects } = useContext(AccountContext)
 
     const [project_name, setProject] = useState(default_project)
 
     useEffect(() => {
         select(undefined)
         loadProjects()
-    // eslint-disable-line
+        // eslint-disable-line
     }, [])
 
     const onReview = useCallback(async () => {
@@ -63,16 +69,22 @@ const Explorer = () => {
             return
         }
 
+        if (!session) {
+            return
+        }
+
         const file_name = selected.name
         const source_code = selected.raw_value
 
-        if (confirm("Submit a request") == true) {
-            await submit(profile.slug, file_name, source_code)
-            alert("Done. Please wait a few seconds and refresh.")
+        try {
+            await submit(session, file_name, source_code)
+            // alert("Submitted. Wait a few seconds and check the result on the report page.")
+            setModal(MODAL.REVIEW_DONE)
+        } catch (e) {
+            alert(e.message)
         }
 
-    }, [selected, profile, submit])
-
+    }, [selected, submit, session])
 
     const project = project_name && projects && projects.find(item => item.project_name === project_name)
 
@@ -111,6 +123,63 @@ const Explorer = () => {
                 close={() => setModal(MODAL.NONE)}
                 project_name={project_name}
             />
+            <BaseModal
+                visible={modal === MODAL.REVIEW_DONE}
+                title={"Submitted"}
+                close={() => setModal(MODAL.NONE)}
+                maxWidth="max-w-md"
+            >
+                <p>
+                    Please wait a few seconds and check the result on the report page.
+                </p>
+                <div className="col-span-1 mt-4 ">
+                    <button onClick={() => setModal(MODAL.NONE)} class={`bg-white text-center text-black  mx-auto py-2   w-full    rounded-lg `}>
+                        Close
+                    </button>
+                </div>
+            </BaseModal>
+            <BaseModal
+                visible={modal === MODAL.REVIEW}
+                title={"Confirm Review"}
+                close={() => setModal(MODAL.NONE)}
+                maxWidth="max-w-md"
+            >
+                {session
+                    ?
+                    <>
+                        <p>
+                            When submitting a code review, the following credits will be deducted from your account:
+                        </p>
+                        <div className="py-2">
+                            <b>Credits: </b>
+                            <span className="font-mono ml-1.5">10</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-center my-1">
+                            <div className="col-span-1   ">
+                                <button onClick={onReview} class={`bg-white text-center text-black mx-auto py-2  w-full    rounded-lg `}>
+                                    OK
+                                </button>
+                            </div>
+                            <div className="col-span-1  ">
+                                <button onClick={() => setModal(MODAL.NONE)} class={`bg-white text-center text-black  mx-auto py-2   w-full    rounded-lg `}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                    :
+                    <>
+                        <p>
+                            Only logged-in users can submit a request.
+                        </p>
+                        <div className="col-span-1 mt-4 ">
+                            <button onClick={() => setModal(MODAL.NONE)} class={`bg-white text-center text-black  mx-auto py-2   w-full    rounded-lg `}>
+                                Close
+                            </button>
+                        </div>
+                    </>
+                }
+            </BaseModal>
 
             <div className="flex flex-col">
                 <div className="h-[40px] border-b w-full border-neutral-600 flex ">
@@ -166,7 +235,7 @@ const Explorer = () => {
                                     value: atob(fileData.source_code),
                                     raw_value: fileData.source_code,
                                     project_name,
-                                    editable: fileData.editable ? true :false
+                                    editable: fileData.editable ? true : false
                                 })
                             }}
                             aria-label="directory tree"
@@ -191,7 +260,7 @@ const Explorer = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 xl:grid-cols-2 text-center px-1  text-sm my-1">
-                    
+
                     <div className="col-span-1 p-1  ">
                         <button onClick={() => setModal(MODAL.NEW_FILE)} class={`bg-white   text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
                             <Plus size={14} className="ml-auto mt-0.5 mr-0.5" />
@@ -209,7 +278,7 @@ const Explorer = () => {
                         </button>
                     </div>
                     <div className="col-span-2 p-1  ">
-                        <button onClick={onReview} disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
+                        <button onClick={() => setModal(MODAL.REVIEW)} disabled={!selected} class={`bg-blue-500 text-center ${!selected && "opacity-60"} text-white mx-auto py-2  w-full flex flex-row  rounded `}>
                             <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
                             <div className="mr-auto ">
                                 Review
@@ -220,7 +289,7 @@ const Explorer = () => {
 
                 <div className=" font-mono">
                     <div className="text-white pb-3 ">
-
+                        {/* 
                         {!report && (
                             <div className="mx-auto text-sm py-2 mb-1 w-full max-w-[300px] text-center">
                                 This file has not yet been reviewed
@@ -233,19 +302,7 @@ const Explorer = () => {
                                     The report is ready{` `}<Link href={`/report/${profile.slug}`} className="underline">{`>>`}</Link>
                                 </div>
                             </>
-                        )}
-
-                        {/* <button onClick={() => !isOpen ? openReport() : closeReport()} disabled={!report} class={`bg-white ${!report && "opacity-60"}  text-center   text-black mx-auto py-2  w-full  flex flex-row  rounded `}>
-                            <div className="ml-auto text-sm">
-                                {!isOpen ? "Open" : "Close"} Report
-                            </div>
-                            {!isOpen
-                                ?
-                                <ArrowRight size={16} className="mr-auto  mt-0.5 ml-0.5" />
-                                :
-                                <X size={16} className="mr-auto  mt-0.5 ml-0.5" />
-                            }
-                        </button> */}
+                        )} */}
                     </div>
                 </div>
 
@@ -304,7 +361,6 @@ const Explorer = () => {
                 `}
             </style>
         </>
-
     )
 }
 

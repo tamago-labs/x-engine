@@ -60,13 +60,13 @@ const Layout = ({ children }) => {
                                         </div>
                                     </Link>
                                 </li>
-                                <li className=" mx-auto mb-0.5">
+                                {/* <li className=" mx-auto mb-0.5">
                                     <div onClick={() => openSettings()} className="mx-auto py-3 justify-between p-2 cursor-pointer border-transparent border-l-4">
                                         <div className={`flex items-center justify-center opacity-60`}>
                                             <Settings size={24} />
                                         </div>
                                     </div>
-                                </li>
+                                </li> */}
                             </ul>
                         </nav>
                     </aside>

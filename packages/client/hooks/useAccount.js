@@ -27,7 +27,7 @@ const Provider = ({ children }) => {
 
     const { selected, profile, connected, quota, projects, report, tick, isOpen } = values
 
-    const select = (selected) => {
+    const select = (selected) => { 
         dispatch({ selected })
     }
 

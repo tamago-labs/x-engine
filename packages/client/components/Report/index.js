@@ -1,12 +1,34 @@
+import { AuthContext } from "@/hooks/useAuth"
 import SubNavbar from "@/layouts/SubNavbar"
+import { useContext, useEffect, useState } from "react"
+import MarkdownDisplay from "../Markdown"
 
 
 const ReportContainer = () => {
+
+    const { session, getReport } = useContext(AuthContext)
+
+    const [select, setSelect] = useState()
+    const [files, setFiles] = useState([])
+
+    useEffect(() => {
+        session && getReport(session.email).then(setFiles)
+    }, [session])
+
     return (
         <div className="grid grid-cols-10 ">
-            <SubNavbar/>
+            <SubNavbar
+                title="Report"
+                select={select}
+                setSelect={setSelect}
+                list={files}
+
+            />
             <div className={`col-span-8 bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
-                RIGHT
+                <MarkdownDisplay
+                    content={select}
+                    close={() => setSelect()}
+                />
             </div>
         </div>
     )

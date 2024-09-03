@@ -1,6 +1,7 @@
 import AuthModal from "@/modals/auth";
 import { createContext, useCallback, useEffect, useMemo, useReducer } from "react";
 import axios from "axios";
+import { ethers } from "ethers"
 
 export const AuthContext = createContext({})
 
@@ -17,9 +18,9 @@ const Provider = ({ children }) => {
 
     const { modal, session, isLoggedIn } = values
 
-    const host = "localhost"
-    const prefix = "http"
-    const port = "8000"
+    const host = process.env.HOST || "localhost"
+    const prefix = host === "localhost" ? "http" : "https"
+    const port = process.env.PORT || "8000"
 
     const hostname = `${prefix}://${host}:${port}`
 
@@ -55,7 +56,7 @@ const Provider = ({ children }) => {
         try {
             await axios.post(`${hostname}/auth/signup`, {
                 username,
-                password
+                password: ethers.hashMessage(password)
             })
         } catch (e) {
             throw new Error(e.response.data.message)
@@ -68,7 +69,7 @@ const Provider = ({ children }) => {
         try {
             const { data } = await axios.post(`${hostname}/auth/login`, {
                 username,
-                password
+                password: ethers.hashMessage(password)
             })
             await saveSession(data)
         } catch (e) {
@@ -77,10 +78,72 @@ const Provider = ({ children }) => {
 
     }, [])
 
+    const submit = useCallback(async (session, filename, source_code) => {
+
+        try {
+
+            await axios.post(`${hostname}/submit`, {
+                account: session.email,
+                filename,
+                source_code,
+                sessionId: session.sessionId,
+            })
+
+            session.credits = session.credits - 10
+
+            await saveSession(session)
+        } catch (e) {
+            throw new Error(e.response.data.message)
+        }
+
+    }, [])
+
+    const getReport = useCallback(async (username) => {
+
+        try {
+            const { data } = await axios.get(`${hostname}/report/${username}`)
+            return data.reports
+        } catch (e) {
+            alert(e.response.data)
+            console.log(e)
+            return []
+        }
+
+    }, [])
+
+    const getContext = useCallback(async () => {
+
+        const allEntries = [
+            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/instructions/sui-vs-aptos-move-differences.md",
+            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-101.md",
+            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-106.md",
+            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md"
+        ]
+
+        let output = []
+
+        try {
+            for (let entry of allEntries) {
+                const response = await axios.get(entry)
+                output.push(response.data)
+            }
+
+            return output
+        } catch (e) {
+            alert(e.response.data)
+            console.log(e)
+            return []
+        }
+
+    }, [])
+
     const authContext = useMemo(
         () => ({
             isLoggedIn,
             signIn,
+            submit,
+            getContext,
+            getReport,
             logIn,
             logOut,
             session,
@@ -93,9 +156,7 @@ const Provider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={authContext}>
-
             <AuthModal visible={modal} close={() => dispatch({ modal: false })} />
-
             {children}
         </AuthContext.Provider>
     )

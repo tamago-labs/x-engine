@@ -135,11 +135,9 @@ const AuthModal = ({ visible, close }) => {
                         <label for="password" class="block text-white text-sm font-bold text-right pr-2 pt-2 mb-2">Password:</label>
                         <input value={password} onChange={(e) => dispatch({ password: e.target.value })} type="password" id="password" name="password" className="shadow col-span-2 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                     </div>
-                    <div class="mb-4 px-6 font-mono mt-6 grid grid-cols-3">
-                        <div>
-
-                        </div>
-                        <button onClick={onLogin} class={`bg-white col-span-2  text-sm w-[150px]   text-black font-bold py-2 rounded-md `}>
+                    <div class="mb-4 px-6 font-mono mt-6 flex ">
+                        
+                        <button onClick={onLogin} class={`bg-white  mx-auto col-span-2  text-sm w-[150px]   text-black font-bold py-2 rounded-md `}>
                             Login
                         </button>
                     </div>
@@ -159,11 +157,9 @@ const AuthModal = ({ visible, close }) => {
                         <label for="passwordRetry" class="block text-white text-sm font-bold text-right pr-2 pt-2 col-span-2 mb-2">Password Again:</label>
                         <input value={passwordRetry} onChange={(e) => dispatch({ passwordRetry: e.target.value })} type="password" id="passwordRetry" name="passwordRetry" className="shadow col-span-3 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                     </div>
-                    <div class="mb-4 px-6 font-mono mt-6 grid grid-cols-5">
-                        <div className="col-span-2">
-
-                        </div>
-                        <button onClick={onSignIn} class={`bg-white col-span-3  text-sm w-[150px]   text-black font-bold py-2 rounded-md `}>
+                    <div class="mb-4 px-6 font-mono mt-6 flex ">
+                       
+                        <button onClick={onSignIn} class={`bg-white mx-auto col-span-3  text-sm w-[150px]   text-black font-bold py-2 rounded-md `}>
                             Sign In
                         </button>
                     </div>

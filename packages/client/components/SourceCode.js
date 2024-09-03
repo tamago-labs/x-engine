@@ -3,13 +3,11 @@ import Editor from '@monaco-editor/react';
 import { ArrowRight, X } from "react-feather"
 import { useCallback, useContext, useEffect, useState } from 'react';  
 import AuthHeader from './AuthHeader';
+
+
 const SourceCode = () => {
 
-    const { selected, select, openReport, isOpen, report, saveFile } = useContext(AccountContext)
-
-    // useEffect(() => {
-    //     loadProfile()
-    // }, [])
+    const { selected, select, saveFile } = useContext(AccountContext)
 
     const onSave = useCallback((value, event) => {
 
@@ -58,10 +56,10 @@ const SourceCode = () => {
                 }
                 <div className='flex-grow border-neutral-600 border-t font-mono p-4 flex text-sm'>
                     <div className='my-auto'>
-                        <li>Welcome to XReview, an AI code review tool for Move contracts.</li>
-                        <li>This is an early preview version and may contain bugs or incomplete features. </li>
-                        <li>Each user can submit up to 3 code review requests per day.</li>
-                        <li>If you need to submit more than the limit, you will need to buy additional credits.</li>
+                        <li>Welcome to X-Engine, an AI code review tool for Move contracts.</li>
+                        <li>You are using a public beta version which may contain bugs or incomplete features.</li>
+                        <li>New users will receive 30 credits upon registration.</li>
+                        <li>10 credits can be claimed daily. We have no plans to charge at the moment.</li>
                     </div>
                 </div>
             </div>
