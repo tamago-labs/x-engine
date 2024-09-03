@@ -1,16 +1,15 @@
 import Link from "next/link"
-import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle } from "react-feather"
 import { useRouter } from "next/router"
 import Footer from "./Footer"
+import { MessageSquare, FileText, Server, Home, Settings, GitHub, Code, Book, BookOpen, List, Edit, HelpCircle, CheckCircle, CheckSquare, Package, Inbox, Activity, Feather } from "react-feather"
 import { useContext, useState } from "react"
-import SettingsModal from "../modals/settings"
 import { AccountContext } from "@/hooks/useAccount"
+import { ModalContext } from "@/hooks/useModal"
 
 const Layout = ({ children }) => {
 
     const { profile } = useContext(AccountContext)
-
-    const [modal, setModal] = useState(false)
+    const { openSettings } = useContext(ModalContext)
 
     const router = useRouter()
 
@@ -61,13 +60,13 @@ const Layout = ({ children }) => {
                                         </div>
                                     </Link>
                                 </li>
-                                <li className=" mx-auto mb-0.5">
-                                    <div onClick={() => setModal(true)} className="mx-auto py-3 justify-between p-2 cursor-pointer border-transparent border-l-4">
-                                        <div className={`flex items-center justify-center opacity-60  `}>
+                                {/* <li className=" mx-auto mb-0.5">
+                                    <div onClick={() => openSettings()} className="mx-auto py-3 justify-between p-2 cursor-pointer border-transparent border-l-4">
+                                        <div className={`flex items-center justify-center opacity-60`}>
                                             <Settings size={24} />
                                         </div>
                                     </div>
-                                </li>
+                                </li> */}
                             </ul>
                         </nav>
                     </aside>
@@ -78,10 +77,6 @@ const Layout = ({ children }) => {
                 <Footer />
             </div>
 
-            <SettingsModal
-                visible={modal}
-                close={() => setModal(false)}
-            />
 
         </>
     )

@@ -13,23 +13,16 @@ const Explorer = dynamic(() => import("@/components/Explorer"), {
 
 const Main = () => {
 
-    const { isOpen } = useContext(AccountContext)
+    // const { isOpen } = useContext(AccountContext)
 
     return (
         <div className="grid grid-cols-10 ">
             <div className="col-span-2 bg-neutral-900 min-h-screen   pt-[29px]  border-r border-neutral-600 ">
                 <Explorer />
             </div>
-            <div className={`${isOpen ? "col-span-4" : "col-span-8"} bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
+            <div className={`col-span-8 bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
                 <SourceCode />
-            </div>
-            {isOpen && (
-                <div className={`${isOpen ? "col-span-4" : "col-span-8"} bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
-                    <Report/>
-                </div>
-            )
-
-            }
+            </div> 
         </div>
     )
 }

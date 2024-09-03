@@ -35,6 +35,14 @@ The following table provides the vulnerability patterns we support at the moment
 | [MSWC-107](./packages/MSWC-registry/MSWC-107.md)    | Re-entrancy                              | [CWE-841: Improper Enforcement of Behavioral Workflow](https://cwe.mitre.org/data/definitions/841.html) |
 | [MSWC-120](./packages/MSWC-registry/MSWC-120.md)    | Weak randomness                          | [CWE-330: Use of Insufficiently Random Values](https://cwe.mitre.org/data/definitions/330.html)         |
 
+## Instructions
+
+Instructions contain a set of specific knowledge that is provided as context during RAG processing along with the MSWC Registry above.
+
+| ID                           | Title                                    |
+| ---------------------------- | ---------------------------------------- |
+| [sui-vs-aptos-move-differences](./packages/instructions/sui-vs-aptos-move-differences.md)    | Differences Between Sui Move and Aptos Move         |
+
 ## Backend
 
 The backend made with Node.js and Express.js, serves as the core of the project. It contains API services and a simple queue system to process source code sent by users to external API services one by one. 
