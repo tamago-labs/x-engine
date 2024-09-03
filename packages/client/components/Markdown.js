@@ -3,6 +3,8 @@ import { slugify } from "@/helpers"
 import { useEffect } from "react"
 import { X } from "react-feather"
 import Markdown from 'react-markdown'
+import AuthHeader from './AuthHeader';
+
 
 const MarkdownDisplay = ({ content, close }) => {
 
@@ -21,6 +23,7 @@ const MarkdownDisplay = ({ content, close }) => {
                             </div>
                         </div>
                     )}
+                    <AuthHeader/>
                 </div>
 
                 {content

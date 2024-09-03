@@ -104,7 +104,7 @@ const Provider = ({ children }) => {
             const { data } = await axios.get(`${hostname}/report/${username}`)
             return data.reports
         } catch (e) {
-            alert(e.response.data)
+            alert(e && e.response && e.response.data || e.message)
             console.log(e)
             return []
         }
@@ -130,7 +130,7 @@ const Provider = ({ children }) => {
 
             return output
         } catch (e) {
-            alert(e.response.data)
+            alert(e && e.response && e.response.data || e.message)
             console.log(e)
             return []
         }
