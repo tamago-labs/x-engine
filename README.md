@@ -1,6 +1,6 @@
 # AI-Code Review for Move Smart Contracts
 
-**The project started and received 1st place in the AI x Web3 track at the [ moveonaptos.dev](https://moveonaptos.dev/) hackathon in July'24.**
+**The project started and received 1st place in the AI x Web3 track at the [ moveonaptos.dev](https://moveonaptos.dev/) hackathon in July'24. We continue to add more features to enhance security and support smarter development on Move with AI.**
 
 Smart contract audits are costly, especially today when the focus isn't solely on the Ethereum chain. Deploying smart contracts to multiple chains requires separate audits for each chain and each smart contract language, making it impossible for smaller projects to afford.
 
