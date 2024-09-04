@@ -16,6 +16,8 @@ We provide an AI solution for quickly reviewing smart contracts and generating r
 * Automatic report generator
 * Built-in IDE
 
+## Use Cases
+
 There are several use cases for the AI code review tool as follows:
 
 * Expansion to Move-based chains (Aptos, Sui, Movement).
