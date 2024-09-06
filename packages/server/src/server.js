@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors"
-import helmet from "helmet"
 import * as fastq from "fastq";
-import rateLimiter from "./middleware/rateLimiter.js";
 import Account from "./core/account.js";
 import RagChain from "./core/ragChain.js";
+import cron from "node-cron"
+
 
 export const app = express()
 
@@ -16,30 +16,34 @@ app.set("trust proxy", true);
 
 // Middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(cors())
-app.use(helmet())
-app.use(rateLimiter)
 
 // Setup a worker
 const onWorker = async (args) => {
 
-    const { task, account, filename, source_code } = args
+    const { task, account, filename, source_code, query } = args
 
     await chain.init([
         "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/instructions/sui-vs-aptos-move-differences.md",
         "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-101.md",
         "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-106.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md"
+        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md",
+        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/cosmostation.md",
+        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/move-vector-limitations.md",
+        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/everstake.md"
     ])
 
     switch (task) {
         case "submit":
             console.log("Submitting...")
-
             await chain.generateReport(account, filename, `${Buffer.from(source_code, 'base64').toString('utf8')}`)
-
             console.log("Report attached.")
+            break
+        case "query":
+            console.log("Querying...")
+            const report = await chain.query(query)
+            await chain.saveReport("defi", "Validator Selection Result", report)
+            console.log("Report saved.")
             break
     }
 
@@ -52,8 +56,6 @@ const queue = fastq.promise(onWorker, 1)
 
 // health-check
 app.get('/', async (req, res) => {
-
-
     return res.status(200).json({ status: "ok" });
 })
 
@@ -84,6 +86,8 @@ app.post("/auth/login", async (req, res) => {
     }
 
 })
+
+// MOVE CODE-REVIEW
 
 app.post("/submit", async (req, res) => {
 
@@ -122,4 +126,23 @@ app.get("/report/:account", async (req, res) => {
 })
 
 
+// DEFI
 
+// Daily reports are generated for DeFi operations such as validator selection.
+
+const generateDeFiReport = async () => {
+
+    // Validator Selection
+    queue.push({
+        task: "query",
+        account: "defi",
+        query: [
+            "From the list of validators below, choose the one that is best for staking at the moment:",
+            "- Cosmostation",
+            "- Everstake"
+        ].join()
+    })
+
+}
+
+cron.schedule('0 1 * * *', generateDeFiReport)

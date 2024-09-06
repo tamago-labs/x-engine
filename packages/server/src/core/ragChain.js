@@ -141,6 +141,26 @@ class RagChain {
         return result
     }
 
+    saveReport = async (account, title, report) => {
+        const mkd = new Markdown(`${title}`)
+        mkd.paragraph(report)
+
+        try {
+            let entry = await this.db.get(account)
+            entry.reports.push(mkd.render())
+            await this.db.put(entry)
+        } catch (e) {
+            const item = {
+                _id: account,
+                reports: [
+                    mkd.render()
+                ]
+            }
+            await this.db.put(item)
+        }
+
+    }
+
     getReport = async (account) => {
         try {
             const entry = await this.db.get(account) 
