@@ -24,26 +24,22 @@ There are several use cases for the AI code review tool as follows:
 * Currently developing Move-native applications and preparing for a full security audit.
 * The project is in its early stages and needs a code review report to gain early traction.
 
-## MSWC Registry
+## Context
 
-The Move Smart Contract Weakness Classification Registry (MSWC Registry) is an implementation of the weakness classification scheme proposed by Ethereum EIP-1470 and documented at [SWC Registry](https://github.com/SmartContractSecurity/SWC-registry). We're porting Solidity into the Move smart contract language for further review with an AI engine that is compatible with Sui Move and Aptos Move.
+We extend the knowledge capacity of the LLM (Claude AI in our case) using the RAG approach by providing context for the AI to understand before further analyzing the source code. The context can be divided into 2 groups as follows:
 
-The following table provides the vulnerability patterns we support at the moment based on the original SWC and CWE and we may continue to add more in the future.
+*  Move language-specific practices
+*  Porting from Ethereum's EIP-1470 (https://github.com/SmartContractSecurity/SWC-registry)
 
-| ID                           | Title                                    | Relationships                                                                                           |
+The table below lists all the contexts we currently support including vulnerability patterns with more being added over time.
+
+| ID                           | Title                                    | References                                                                                           |
 | ---------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------|
-| [MSWC-101](./packages/MSWC-registry/MSWC-101.md)    | Integer overflows and underflows         | [CWE-682: Incorrect Calculation](https://cwe.mitre.org/data/definitions/682.html)                       |
-| [MSWC-106](./packages/MSWC-registry/MSWC-106.md)    | Broken access controls                   | [CWE-284: Improper Access Control](https://cwe.mitre.org/data/definitions/284.html)                     |
-| [MSWC-107](./packages/MSWC-registry/MSWC-107.md)    | Re-entrancy                              | [CWE-841: Improper Enforcement of Behavioral Workflow](https://cwe.mitre.org/data/definitions/841.html) |
-| [MSWC-120](./packages/MSWC-registry/MSWC-120.md)    | Weak randomness                          | [CWE-330: Use of Insufficiently Random Values](https://cwe.mitre.org/data/definitions/330.html)         |
-
-## Instructions
-
-Instructions contain a set of specific knowledge that is provided as context during RAG processing along with the MSWC Registry above.
-
-| ID                           | Title                                    |
-| ---------------------------- | ---------------------------------------- |
-| [sui-vs-aptos-move-differences](./packages/instructions/sui-vs-aptos-move-differences.md)    | Differences Between Sui Move and Aptos Move         |
+| [sui-vs-aptos-move-differences](./packages/context/sui-vs-aptos-move-differences.md)    | Differences Between Sui Move and Aptos Move         |      |
+| [move-vector-limitations](./packages/context/move-vector-limitations.md)    | Move Vector Limitations         |      |
+| [integer-overflow-and-underflow](./packages/context/integer-overflow-and-underflow.md)    | Integer overflows and underflows         | [CWE-682](https://cwe.mitre.org/data/definitions/682.html)                       |
+| [broken-access-controls](./packages/context/broken-access-controls.md)    | Broken access controls                   | [CWE-284](https://cwe.mitre.org/data/definitions/284.html)                     |
+| [re-entrancy](./packages/context/re-entrancy.md)    | Re-entrancy                              | [CWE-841](https://cwe.mitre.org/data/definitions/841.html) |
 
 ## Backend
 
@@ -52,9 +48,10 @@ The backend made with Node.js and Express.js, serves as the core of the project.
 |   |type|description|
 |---|--- |---                      |
 |**/**|get|for heartbeat|
-|**/account/:slug**|get|get account info|
-|**/submit/:slug**|post|submit a request in base64|
-|**/report/:slug/:file_name**|get|get a report in base64|
+|**/auth/signup**|post|register a user|
+|**/auth/login**|post|for login|
+|**/submit/**|post|submit a request in base64|
+|**/report/:account**|get|get a report in base64|
 
 It runs with two main modules: `database.js` and `rag_chain.js`.
 
@@ -73,14 +70,6 @@ The project uses a Lerna monorepo. After downloading this repo onto your machine
 
 ```
 npm install
-```
-
-Inside the client folder, you may need to switch the HOST from the default API host to your localhost on `constants.js` file.
-
-```
-export const HOST = "https://xreview-api.tamago.finance"
-
-// export const HOST = "http://localhost:8000"
 ```
   
 Ensure you obtain all API keys from the AI services we are using and place them in the .env file.
