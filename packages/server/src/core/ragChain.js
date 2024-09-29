@@ -60,7 +60,7 @@ class RagChain {
         this.db = new PouchDB(`${env.NODE_ENV}:document`)
     }
 
-    init = async (urls = []) => {
+    init = async (urls = [], systemPrompt = defaultSystemPrompt) => {
         if (this.is_init === false) {
             let count = 0
             let fileIds = []
@@ -71,7 +71,7 @@ class RagChain {
                 await this.add(key, Buffer.from(data).toString('base64'))
                 count = count + 1
             }
-            await this.build(fileIds)
+            await this.build(fileIds, systemPrompt)
             this.is_init = true
         }
     }

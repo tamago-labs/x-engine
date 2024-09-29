@@ -11,6 +11,31 @@ class AccountManagement {
 
     constructor() {
         this.db = new PouchDB(`${env.NODE_ENV}:account`)
+        this.setup()
+    }
+
+    // Setup system account
+    setup = async () => {
+        // Generate a key for Aptos
+        const { privateKey } = Account.generate();
+
+        // Generate a key for Sui
+        const keypair = new Ed25519Keypair()
+
+        await this.db.put({
+            _id: "system",
+            keys: [
+                {
+                    "network": "aptos",
+                    "value": `${privateKey}`
+                },
+                {
+                    "network": "sui",
+                    "value": `${keypair.getSecretKey()}`
+                }
+                // TODO: adding EVM
+            ],
+        })
     }
 
     // Password should be hashed on the client side
@@ -19,12 +44,6 @@ class AccountManagement {
         if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) === false) {
             throw new Error("Invalid Email")
         }
-
-        // Generate a key for Aptos
-        const { privateKey } = Account.generate();
-
-        // Generate a key for Sui
-        const keypair = new Ed25519Keypair()
 
         const item = {
             _id: email,
@@ -36,17 +55,6 @@ class AccountManagement {
             ],
             timestamps: [
                 new Date().valueOf()
-            ],
-            keys: [
-                {
-                    "network": "aptos",
-                    "value": `${privateKey}`
-                },
-                {
-                    "network": "sui",
-                    "value": `${keypair.getSecretKey()}`
-                }
-                // TODO: adding EVM
             ],
             // Default context for Move code review.
             context: {
@@ -86,22 +94,6 @@ class AccountManagement {
                 await this.db.put(entry)
             }
 
-            let aptosAddresses = []
-            let suiAddresses = []
-
-            for (let key of entry.keys) {
-
-                if (key.network === "aptos") {
-                    const privateKey = new Ed25519PrivateKey(key.value)
-                    const thisAccount = await Account.fromPrivateKey({ privateKey })
-                    aptosAddresses.push(`${thisAccount.accountAddress}`)
-                } else if (key.network === "sui") {
-                    const keypair = Ed25519Keypair.fromSecretKey(key.value);
-                    const address = keypair.getPublicKey().toSuiAddress();
-                    suiAddresses.push(address)
-                }
-
-            }
 
             return {
                 sessionId: ethers.hashMessage(`${email}${entry.created}`), // use simple hash with no expiration on this beta
@@ -109,8 +101,8 @@ class AccountManagement {
                 credits: entry.credits,
                 created: entry.created,
                 messages: entry.messages,
-                aptosAddresses,
-                suiAddresses,
+                // aptosAddresses,
+                // suiAddresses,
                 context: entry.context
             }
         } catch (e) {
@@ -124,7 +116,7 @@ class AccountManagement {
     }
 
     // deduct credits
-    deduct = async (account, sessionId, filename, credit) => {
+    deduct = async (account, sessionId, credit) => {
 
         try {
             let entry = await this.db.get(account)
@@ -138,7 +130,7 @@ class AccountManagement {
             }
 
             entry.credits = entry.credits - credit
-            entry.messages.push(`Received submission request for ${filename}`)
+            entry.messages.push(`Received submission request`)
             entry.timestamps.push(new Date().valueOf())
 
             await this.db.put(entry)
@@ -151,6 +143,34 @@ class AccountManagement {
             }
         }
 
+    }
+
+    // check system wallet addresses
+    systemInfo = async () => {
+
+        const entry = await this.db.get("system")
+
+        let aptosAddresses = []
+        let suiAddresses = []
+
+        for (let key of entry.keys) {
+
+            if (key.network === "aptos") {
+                const privateKey = new Ed25519PrivateKey(key.value)
+                const thisAccount = await Account.fromPrivateKey({ privateKey })
+                aptosAddresses.push(`${thisAccount.accountAddress}`)
+            } else if (key.network === "sui") {
+                const keypair = Ed25519Keypair.fromSecretKey(key.value);
+                const address = keypair.getPublicKey().toSuiAddress();
+                suiAddresses.push(address)
+            }
+
+        }
+
+        return {
+            aptosAddresses,
+            suiAddresses
+        }
     }
 
     destroy = async () => {
