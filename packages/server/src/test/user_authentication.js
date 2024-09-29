@@ -25,7 +25,7 @@ describe("#user_authentication()", function () {
     })
 
     it('should log-in success', async function () {
-        
+
         // Fails on wrong password
         try {
             await account.logIn("alice@gmail.com", ethers.hashMessage("not correct"))
@@ -36,6 +36,8 @@ describe("#user_authentication()", function () {
         const response = await account.logIn("alice@gmail.com", ethers.hashMessage("password"))
         expect(response.credits).to.equal(30)
         expect(response.messages.length).to.equal(1)
+        expect(response.aptosAddresses[0].length).to.equal(66) 
+        expect(response.suiAddresses[0].length).to.equal(66) 
     })
 
     after(async function () {

@@ -47,6 +47,7 @@ const model = new ChatAnthropic({
 const defaultSystemPrompt = [
     `You are an AI agent assigned to review source code. `,
     `Use the following pieces of context to answer the question without referring to the example source code.`,
+    `Return vulnerability scores as an array at the beginning.`,
     `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
     `\n\n`,
     `Context: {context}`,
@@ -60,15 +61,15 @@ class RagChain {
     }
 
     init = async (urls = []) => {
-        if (this.is_init === false) { 
+        if (this.is_init === false) {
             let count = 0
             let fileIds = []
             for (let url of urls) {
-                const { data } = await axios.get(url) 
+                const { data } = await axios.get(url)
                 const key = `document-${count}`
                 fileIds.push(key)
                 await this.add(key, Buffer.from(data).toString('base64'))
-                count = count + 1 
+                count = count + 1
             }
             await this.build(fileIds)
             this.is_init = true
@@ -99,7 +100,6 @@ class RagChain {
             retriever: vectorstore.asRetriever(),
             combineDocsChain: questionAnswerChain,
         });
-
     }
 
     query = async (input) => {
@@ -114,51 +114,40 @@ class RagChain {
         return result.answer
     }
 
-    generateReport = async (account, filename, source_code) => {
-
-        const result = await this.query([
-            "From the below source code, give code review including vulnerability score ranging from 0-100%",
-            source_code,
-        ].join())
-
-        const mkd = new Markdown(`Review Summary - ${filename}`)
-        mkd.paragraph(result)
-
-        try {
-            let entry = await this.db.get(account)
-            entry.reports.push(mkd.render())
-            await this.db.put(entry)
-        } catch (e) {
-            const item = {
-                _id: account,
-                reports: [
-                    mkd.render()
-                ]
-            }
-            await this.db.put(item)
-        }
-
-        return result
-    }
-
     saveReport = async (account, title, report) => {
-        const mkd = new Markdown(`${title}`)
-        mkd.paragraph(report)
 
         try {
+
             let entry = await this.db.get(account)
-            entry.reports.push(mkd.render())
+
+            if (entry.reports.find(item => item.title === title)) {
+                entry.reports.map((item) => {
+                    if (item.title === title) {
+                        item.value = report
+                    }
+                    return item
+                })
+            } else {
+                entry.reports.push({
+                    title,
+                    value: report
+                })
+            }
             await this.db.put(entry)
         } catch (e) {
+
             const item = {
                 _id: account,
                 reports: [
-                    mkd.render()
+                    {
+                        title,
+                        value: report
+                    }
                 ]
             }
+
             await this.db.put(item)
         }
-
     }
 
     getReport = async (account) => {
@@ -222,6 +211,7 @@ class RagChain {
     destroy = async () => {
         await this.db.destroy();
     }
+
 }
 
 export default RagChain
