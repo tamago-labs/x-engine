@@ -21,7 +21,7 @@ const Provider = ({ children }) => {
     const host = process.env.HOST || "localhost"
     const prefix = host === "localhost" ? "http" : "https"
     const port = process.env.PORT || "8000"
-    
+
     const hostname = `${prefix}://${host}:${port}`
 
     const checkSession = useCallback(async () => {
@@ -59,6 +59,7 @@ const Provider = ({ children }) => {
                 password: ethers.hashMessage(password)
             })
         } catch (e) {
+            console.log(e)
             throw new Error(e.response.data.message)
         }
 
@@ -111,19 +112,14 @@ const Provider = ({ children }) => {
 
     }, [])
 
-    const getContext = useCallback(async () => {
+    const getContext = useCallback(async (session) => {
 
-        const allEntries = [
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/instructions/sui-vs-aptos-move-differences.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-101.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-106.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md"
-        ]
+        const entries = session ? session.context : []
 
         let output = []
 
         try {
-            for (let entry of allEntries) {
+            for (let entry of entries) {
                 const response = await axios.get(entry)
                 output.push(response.data)
             }

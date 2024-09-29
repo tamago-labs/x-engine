@@ -1,13 +1,24 @@
 
 import { slugify } from "@/helpers"
-import { useEffect } from "react"
+import { useCallback, useContext, useEffect } from "react"
 import { X } from "react-feather"
 import Markdown from 'react-markdown'
-import AuthHeader from './AuthHeader';
+import Editor from '@monaco-editor/react';
+import { AccountContext } from "@/hooks/useAccount";
 
+const MarkdownDisplay = ({ content, setSelect, close }) => {
 
-const MarkdownDisplay = ({ content, close }) => {
+    const { saveFile } = useContext(AccountContext)
 
+    const onSave = useCallback((value, event) => {
+
+        if (content.editable) {
+            const file_name = content.name
+            const project_name = content.project_name
+            saveFile(content, setSelect, project_name, file_name, value)
+        }
+
+    },[ content , saveFile])
 
     return (
         <>
@@ -16,21 +27,21 @@ const MarkdownDisplay = ({ content, close }) => {
                     {content && (
                         <div className='bg-[#1E1E1E] text-[#D4D4D4] font-mono px-4 flex border-neutral-600 border-r '>
                             <div className='m-auto'>
-                                {content && slugify(content.split("#")[1].split("\n")[0])}
+                                {content && content.source_code === false && slugify(content.value.split("#")[1].split("\n")[0])}
+                                {content && content.source_code === true && `${content.name}`}
                             </div>
                             <div onClick={close} className='m-auto'>
                                 <X size={16} className='ml-1.5 mb-0.5 cursor-pointer' />
                             </div>
                         </div>
                     )}
-                    <AuthHeader/>
                 </div>
 
-                {content
+                {(content && content.source_code === false)
                     &&
                     <div className="p-4">
                         <Markdown>
-                            {content}
+                            {content.value}
                         </Markdown>
                         <style>
                             {`
@@ -51,6 +62,20 @@ const MarkdownDisplay = ({ content, close }) => {
                                 }
                             `}
                         </style>
+                    </div>
+                }
+
+                {(content && content.source_code === true)
+                    &&
+                    <div>
+                        <Editor
+                            height="100vh"
+                            theme="vs-dark"
+                            path={content.name}
+                            defaultLanguage={"rust"}
+                            defaultValue={content.value}
+                            onChange={onSave}
+                        />
                     </div>
                 }
 

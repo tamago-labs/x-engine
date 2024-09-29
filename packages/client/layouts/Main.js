@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar"
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-import { LayoutContext } from "@/hooks/useLayout"; 
+import { LayoutContext } from "@/hooks/useLayout";
 import { AuthContext } from "@/hooks/useAuth";
 
 const MainLayout = ({ children }) => {
@@ -33,9 +33,7 @@ const MainLayout = ({ children }) => {
 
     useEffect(() => {
         !showLoader && checkSession()
-    },[showLoader])
-
-
+    }, [showLoader])
 
     return (
         <>
@@ -72,28 +70,6 @@ const MainLayout = ({ children }) => {
                                 begin="0s"
                             ></animate>
                         </circle>
-                        {/* <circle cx="50" cy="50" r="0" fill="none" stroke="#262626" strokeWidth="4">
-                            <animate
-                                attributeName="r"
-                                repeatCount="indefinite"
-                                dur="1s"
-                                values="0;16"
-                                keyTimes="0;1"
-                                keySplines="0 0.2 0.8 1"
-                                calcMode="spline"
-                                begin="-0.5s"
-                            ></animate>
-                            <animate
-                                attributeName="opacity"
-                                repeatCount="indefinite"
-                                dur="1s"
-                                values="1;0"
-                                keyTimes="0;1"
-                                keySplines="0.2 0 0.8 1"
-                                calcMode="spline"
-                                begin="-0.5s"
-                            ></animate>
-                        </circle> */}
                     </svg>
                 </div>
             )}
@@ -104,12 +80,32 @@ const MainLayout = ({ children }) => {
                         <Navbar />
                     </aside>
                     <div className=" flex-grow overflow-x-hidden">
-                        {children}
+                        <AuthPanel>
+                            {children}
+                        </AuthPanel>
                     </div>
                 </div>
                 <Footer />
             </div>
         </>
+    )
+}
+
+const AuthPanel = ({ children }) => {
+
+    // const { session, showModal } = useContext(AuthContext)
+
+    // useEffect(() => { 
+    //     if (!session) {
+    //         showModal()
+    //     }
+
+    // }, [session])
+
+    return (
+        <div>
+            {children}
+        </div>
     )
 }
 

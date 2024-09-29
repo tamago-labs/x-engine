@@ -10,7 +10,7 @@ import MainLayout from "@/layouts/Main";
 const HelpPage = () => {
     return (
         <MainLayout>
-            <HelpPanel/>
+            {/* <HelpPanel/> */}
         </MainLayout>
     )
 }
