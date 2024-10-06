@@ -1,85 +1,80 @@
-
 // Test to perform a Move code review
 
 import { expect } from "chai";
 import RagChain from "../core/ragChain.js";
-import axios from "axios"
+import Account from "../core/account.js"
 
+// import axios from "axios"
 
 import EXAMPLE_CONTRACTS from "../example/contracts.json" assert { type: "json" }
 
+let account
 let chain
 
 describe('#rag_move_code_review()', function () {
 
     before(function () {
-
+        account = new Account()
         chain = new RagChain()
+    })
+
+    it('should submit jobs success', async function () {
+
+        for (let i of [1, 2, 3]) {
+
+            const file = EXAMPLE_CONTRACTS[0].files[i - 1]
+
+            await chain.addJob({
+                task: "query",
+                context: "default",
+                account: "test@gmail.com",
+                title: `Job#${i}`,
+                prompt: [
+                    "From the below source code, give code review including vulnerability score ranging from 0-100%",
+                    `${Buffer.from(file.source_code, 'base64').toString('utf8')}`,
+                ].join(),
+
+            })
+
+        }
+
+        // try to override
+        for (let i of [1, 2, 3]) {
+
+            const file = EXAMPLE_CONTRACTS[0].files[i - 1]
+
+            await chain.addJob({
+                task: "query",
+                context: "default",
+                account: "test@gmail.com",
+                title: `Job#${i}`,
+                prompt: [
+                    "From the below source code, give code review including vulnerability score ranging from 0-100%",
+                    `${Buffer.from(file.source_code, 'base64').toString('utf8')}`,
+                ].join(),
+
+            })
+
+        }
+
+        const savedJobs = await chain.listJobs()
+
+        expect(savedJobs[0].title).to.equal("Job#1")
+        expect(savedJobs[1].title).to.equal("Job#2")
+        expect(savedJobs[2].title).to.equal("Job#3")
 
     })
 
-    it('should build rag chain success', async function () {
+    it('should execute jobs success', async function () {
 
-        // Fed the knowledge
-        const instruction_1 = await axios.get("https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/context/sui-vs-aptos-move-differences.md")
-        await chain.add("instruction_1", Buffer.from(instruction_1.data).toString('base64'))
+        const context = await account.getContext("default")
+        await chain.executeJobs(context, 1 )
 
-        const weakness_1 = await axios.get("https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/broken-access-controls.md")
-        await chain.add("weakness_1", Buffer.from(weakness_1.data).toString('base64'))
+        const reports = await chain.getReport("test@gmail.com")
+        expect( reports.length ).to.equal(1)
 
-        const weakness_2 = await axios.get("https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/integer-overflow-and-underflow.md")
-        await chain.add("weakness_2", Buffer.from(weakness_2.data).toString('base64'))
-
-        const weakness_3 = await axios.get("https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/move-vector-limitations.md")
-        await chain.add("weakness_3", Buffer.from(weakness_3.data).toString('base64'))
-
-        await chain.build(["instruction_1", "weakness_1", "weakness_2", "weakness_3"])
-
-    })
-
-    it('should differentiate between Sui Move and Aptos Move success', async function () {
-
-        const file = EXAMPLE_CONTRACTS[0].files[0]
-        const q = [
-            "Is the source code below Sui Move or Aptos Move?",
-            `${Buffer.from(file.source_code, 'base64').toString('utf8')}`,
-        ].join()
-
-        // Uncomment to reveal 
-        // const result = await chain.query(q)
-        // console.log(result)
-
-        // Example result
-        // Based on the code, this appears to be Aptos Move code. Some key indicators:
-        // 1. It imports from the `aptos_framework` and `aptos_std` libraries, which are specific to Aptos:
-        // ```
-        // use aptos_framework::event;
-        // use aptos_framework::fungible_asset;
-        // use aptos_framework::object;
-        // use aptos_std::comparator;
-        // use aptos_std::math128;
-        // use aptos_std::math64;
-        // use aptos_std::smart_vector;
-        // use aptos_std::table;
-        // use aptos_std::fixed_point64;
-        // 2. It uses Aptos-specific data structures like `ExtendRef`, `ConstructorRef`, and the `ObjectGroup` annotation.
-        // 3. It has an `init_module` function that creates an `AMMManager` resource under the deployer's account, which is typical of Aptos modules.
-        // 4. It uses the `acquires` keyword when calling functions that access global storage, which is an Aptos Move concept.
-        // 5. It uses the `signer` type extensively for access control, another Aptos Move concept.
-
-    })
-
-    it('should generate report success', async function () {
-
-        
-        // Uncomment to reveal   
-        const file = EXAMPLE_CONTRACTS[0].files[0]
-        
-        // const result = await chain.query([
-        //     "From the below source code, give code review including vulnerability score ranging from 0-100%",
-        //     `${Buffer.from(file.source_code, 'base64').toString('utf8')}`,
-        // ].join())
-        // console.log(result)
+        // Uncomment to print out 
+        // console.log(reports)
 
         // Example result
         // Based on the provided source code, here is the code review with vulnerability scores:

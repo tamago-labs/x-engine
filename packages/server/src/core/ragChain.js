@@ -58,6 +58,21 @@ class RagChain {
     constructor() {
         this.is_init = false
         this.db = new PouchDB(`${env.NODE_ENV}:document`)
+        this.setup()
+    }
+
+    // Setup a shared account for storing tests
+    setup = async () => {
+
+        try {
+            await this.db.put({
+                _id: "system",
+                jobs: []
+            })
+        } catch (e) {
+
+        }
+
     }
 
     init = async (urls = [], systemPrompt = defaultSystemPrompt) => {
@@ -114,6 +129,78 @@ class RagChain {
         return result.answer
     }
 
+    addJob = async (job) => {
+
+        let entry = await this.db.get("system")
+
+        job.timestamp = new Date().valueOf()
+
+        const { account, title } = job
+
+        if (entry.jobs.find(item => (item.title === title) && (item.account === account))) {
+            entry.jobs.map((item) => {
+                if ((item.title === title) && (item.account === account)) {
+                    item = job
+                }
+                return item
+            })
+        } else {
+            entry.jobs.push({
+                ...job
+            })
+        }
+
+        await this.db.put(entry)
+    }
+
+    listJobs = async (context = undefined) => {
+
+        const entry = await this.db.get("system")
+
+        if (!context) {
+            return entry.jobs
+        } else {
+            return entry.jobs.filter(item => item.context === context)
+        }
+    }
+
+    executeJobs = async (context, max = 3) => {
+
+        if (max > 0 && max <= 100) {
+
+            let entry = await this.db.get("system")
+
+            // Build RAG chain
+            await this.init( context.resources, context.system_prompt )
+            
+            let count = 0;
+            let item_list = []
+
+            entry.jobs = entry.jobs.reduce((arr, item) => {
+
+                if ( item.context === context.context_name && max > count) {
+                    item_list.push(item)
+                    count +=1 
+                } else {
+                    arr.push(item)
+                }
+
+                return arr
+            }, [])
+
+            await this.db.put(entry)
+
+            for (let item of item_list) {
+                console.log("Querying for:", item.title)
+                const report = await this.query(item.prompt)
+
+                await this.saveReport(item.account, item.report, report)
+                console.log("Report saved for ", item.title)
+            }
+        }
+
+    }
+
     saveReport = async (account, title, report) => {
 
         try {
@@ -152,7 +239,7 @@ class RagChain {
 
     getReport = async (account) => {
         try {
-            const entry = await this.db.get(account) 
+            const entry = await this.db.get(account)
             return entry.reports
         } catch (e) {
             return []
