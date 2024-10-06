@@ -11,12 +11,11 @@ const Provider = ({ children }) => {
         (curVal, newVal) => ({ ...curVal, ...newVal }),
         {
             session: undefined,
-            isLoggedIn: false,
-            modal: false
+            isLoggedIn: false
         }
     )
 
-    const { modal, session, isLoggedIn } = values
+    const { session, isLoggedIn } = values
 
     const host = process.env.HOST || "localhost"
     const prefix = host === "localhost" ? "http" : "https"
@@ -25,20 +24,31 @@ const Provider = ({ children }) => {
     const hostname = `${prefix}://${host}:${port}`
 
     const checkSession = useCallback(async () => {
+ 
+
         if (localStorage.getItem("session")) {
             const session = localStorage.getItem("session")
             dispatch({
                 session: JSON.parse(session),
                 isLoggedIn: true
             })
+        } else {
+
+            // create a new account
+
+            const email = faker.internet.email()
+            const password = "1234"
+ 
+            await signIn(email, password)
+            await logIn(email, password)
+ 
         }
     }, [])
 
     const saveSession = useCallback(async (session) => {
         dispatch({
             session,
-            isLoggedIn: true,
-            modal: false
+            isLoggedIn: true
         })
         localStorage.setItem("session", JSON.stringify(session))
     }, [])
@@ -79,80 +89,78 @@ const Provider = ({ children }) => {
 
     }, [])
 
-    const submit = useCallback(async (session, filename, source_code) => {
+    // const submit = useCallback(async (session, filename, source_code) => {
 
-        try {
+    //     try {
 
-            await axios.post(`${hostname}/submit`, {
-                account: session.email,
-                filename,
-                source_code,
-                sessionId: session.sessionId,
-            })
+    //         await axios.post(`${hostname}/submit`, {
+    //             account: session.email,
+    //             filename,
+    //             source_code,
+    //             sessionId: session.sessionId,
+    //         })
 
-            session.credits = session.credits - 10
+    //         session.credits = session.credits - 10
 
-            await saveSession(session)
-        } catch (e) {
-            throw new Error(e.response.data.message)
-        }
+    //         await saveSession(session)
+    //     } catch (e) {
+    //         throw new Error(e.response.data.message)
+    //     }
 
-    }, [])
+    // }, [])
 
-    const getReport = useCallback(async (username) => {
+    // const getReport = useCallback(async (username) => {
 
-        try {
-            const { data } = await axios.get(`${hostname}/report/${username}`)
-            return data.reports
-        } catch (e) {
-            alert(e && e.response && e.response.data || e.message)
-            console.log(e)
-            return []
-        }
+    //     try {
+    //         const { data } = await axios.get(`${hostname}/report/${username}`)
+    //         return data.reports
+    //     } catch (e) {
+    //         alert(e && e.response && e.response.data || e.message)
+    //         console.log(e)
+    //         return []
+    //     }
 
-    }, [])
+    // }, [])
 
-    const getContext = useCallback(async (session) => {
+    // const getContext = useCallback(async (session) => {
 
-        const entries = session ? session.context : []
+    //     const entries = session ? session.context : []
 
-        let output = []
+    //     let output = []
 
-        try {
-            for (let entry of entries) {
-                const response = await axios.get(entry)
-                output.push(response.data)
-            }
+    //     try {
+    //         for (let entry of entries) {
+    //             const response = await axios.get(entry)
+    //             output.push(response.data)
+    //         }
 
-            return output
-        } catch (e) {
-            alert(e && e.response && e.response.data || e.message)
-            console.log(e)
-            return []
-        }
+    //         return output
+    //     } catch (e) {
+    //         alert(e && e.response && e.response.data || e.message)
+    //         console.log(e)
+    //         return []
+    //     }
 
-    }, [])
+    // }, [])
 
     const authContext = useMemo(
         () => ({
             isLoggedIn,
             signIn,
-            submit,
-            getContext,
-            getReport,
-            logIn,
-            logOut,
+            // submit,
+            // getContext,
+            // getReport,
+            // logIn,
+            // logOut,
             session,
-            checkSession,
-            showModal: () => dispatch({ modal: true })
+            checkSession
         }), [
         session,
         isLoggedIn
     ])
 
     return (
-        <AuthContext.Provider value={authContext}>
-            <AuthModal visible={modal} close={() => dispatch({ modal: false })} />
+        <AuthContext.Provider value={authContext}> 
             {children}
         </AuthContext.Provider>
     )

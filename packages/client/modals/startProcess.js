@@ -11,9 +11,10 @@ const StartProcessModal = ({ visible, close }) => {
         <BaseModal
             visible={visible}
             close={close}
+            title={"Start Review Process"}
             maxWidth="max-w-lg"
         >
-            {!isLoggedIn ?
+            {/* {!isLoggedIn ?
 
                 <div className="flex p-4 py-8">
                     <div className="m-auto">
@@ -39,7 +40,7 @@ const StartProcessModal = ({ visible, close }) => {
                     </div>
                 </div>
 
-            }
+            } */}
         </BaseModal>
     )
 }

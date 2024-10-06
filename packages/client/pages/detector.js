@@ -1,15 +1,15 @@
 import MainLayout from "@/layouts/Main";
 import dynamic from 'next/dynamic'
 
-const AddContainer = dynamic(() => import("@/components/Add"), {
+const DetectorContainer = dynamic(() => import("@/components/Detector"), {
     ssr: false,
 })
 
-export default function Add() {
+export default function Detector() {
 
     return (
         <MainLayout>
-            <AddContainer />
+            <DetectorContainer />
         </MainLayout>
     )
 

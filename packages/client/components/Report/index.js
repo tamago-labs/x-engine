@@ -11,19 +11,22 @@ const ReportContainer = () => {
     const [select, setSelect] = useState()
     const [files, setFiles] = useState([])
 
-    useEffect(() => {
-        session && getReport(session.email).then(setFiles)
-    }, [session])
+    // useEffect(() => {
+    //     session && getReport(session.email).then(setFiles)
+    // }, [session])
 
     return (
         <div className="grid grid-cols-10 ">
-            <SubNavbar
-                title="Report"
-                select={select}
-                setSelect={setSelect}
-                list={files}
+            <div className="col-span-2 bg-neutral-900 min-h-screen   pt-[29px]  border-r border-neutral-600 ">
+                <SubNavbar
+                    title="Report"
+                    select={select}
+                    setSelect={setSelect}
+                    list={files}
 
-            />
+                />
+            </div>
+
             <div className={`col-span-8 bg-neutral-900 pt-[29px] border-r border-neutral-600`}>
                 <MarkdownDisplay
                     content={select}

@@ -10,8 +10,7 @@ import { AuthContext } from "@/hooks/useAuth";
 
 const MainLayout = ({ children }) => {
 
-    const [showLoader, setShowLoader] = useState(true);
-    const { selectNetwork } = useContext(LayoutContext)
+    const [showLoader, setShowLoader] = useState(true); 
     const { checkSession } = useContext(AuthContext)
 
     useEffect(() => {
@@ -74,15 +73,13 @@ const MainLayout = ({ children }) => {
                 </div>
             )}
 
-            <div className='flex min-h-screen flex-col bg-neutral-800 text-base font-normal text-gray antialiased  '>
+            <div className='flex min-h-screen flex-col bg-neutral-800 text-base font-normal text-gray antialiased font-mono '>
                 <div className="-mt-[29px] flex-glow overflow-x-hidden flex flex-row">
                     <aside className=" bg-neutral-800 text-white w-[60px] flex flex-col min-h-screen   border-r border-neutral-600  ">
                         <Navbar />
                     </aside>
                     <div className=" flex-grow overflow-x-hidden">
-                        <AuthPanel>
-                            {children}
-                        </AuthPanel>
+                        {children}
                     </div>
                 </div>
                 <Footer />
@@ -91,22 +88,6 @@ const MainLayout = ({ children }) => {
     )
 }
 
-const AuthPanel = ({ children }) => {
 
-    // const { session, showModal } = useContext(AuthContext)
-
-    // useEffect(() => { 
-    //     if (!session) {
-    //         showModal()
-    //     }
-
-    // }, [session])
-
-    return (
-        <div>
-            {children}
-        </div>
-    )
-}
 
 export default MainLayout

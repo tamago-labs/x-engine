@@ -206,7 +206,7 @@ const Files = ({ selected, setSelect }) => {
                         <button onClick={openStart}  class={`bg-blue-500 text-center text-white mx-auto py-2  w-full flex flex-row  rounded `}>
                             <Play size={14} className="ml-auto mt-0.5 mr-0.5" />
                             <div className="mr-auto ">
-                                Start
+                                Run Test
                             </div>
                         </button>
                     </div>
