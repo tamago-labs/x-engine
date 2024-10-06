@@ -24,7 +24,7 @@ const Provider = ({ children }) => {
     const hostname = `${prefix}://${host}:${port}`
 
     const checkSession = useCallback(async () => {
- 
+
 
         if (localStorage.getItem("session")) {
             const session = localStorage.getItem("session")
@@ -38,10 +38,10 @@ const Provider = ({ children }) => {
 
             const email = faker.internet.email()
             const password = "1234"
- 
+
             await signIn(email, password)
             await logIn(email, password)
- 
+
         }
     }, [])
 
@@ -143,12 +143,32 @@ const Provider = ({ children }) => {
 
     // }, [])
 
+    const getContext = useCallback(async (contextName) => {
+
+        try {
+            const { data } = await axios.get(`${hostname}/context/${contextName}`)
+            const urlList = data[contextName].resources
+
+            let output = []
+
+            for (let url of urlList) {
+                const response = await axios.get(url)
+                if (response) output.push(response.data)
+            }
+
+            return output
+        } catch (e) {
+            return []
+        }
+
+    }, [])
+
     const authContext = useMemo(
         () => ({
             isLoggedIn,
             signIn,
             // submit,
-            // getContext,
+            getContext,
             // getReport,
             // logIn,
             // logOut,
@@ -160,7 +180,7 @@ const Provider = ({ children }) => {
     ])
 
     return (
-        <AuthContext.Provider value={authContext}> 
+        <AuthContext.Provider value={authContext}>
             {children}
         </AuthContext.Provider>
     )
