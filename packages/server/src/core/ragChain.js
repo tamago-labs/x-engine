@@ -166,9 +166,14 @@ class RagChain {
 
     executeJobs = async (context, max = 3) => {
 
-        if (max > 0 && max <= 100) {
+        let entry = await this.db.get("system")
+        const total_items = (entry.jobs.filter(item => item.context === context.context_name)).length
 
-            let entry = await this.db.get("system")
+        console.log("Total item to execute : ", total_items)
+
+        if (total_items > 0 && max > 0 && max <= 100) {
+
+            console.log("Building RAG")
 
             // Build RAG chain
             await this.init( context.resources, context.system_prompt )

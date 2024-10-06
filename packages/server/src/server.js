@@ -17,47 +17,25 @@ app.set("trust proxy", true);
 app.use(express.json());
 app.use(cors())
 
-
-
 // Setup a worker
 const onWorker = async (args) => {
 
-    const { task, context, systemPrompt, account, prompts, titles } = args
+    const { task, context } = args
 
-    await chain.init(context, systemPrompt)
+    console.log("Worker started: ", context, " jobs")
 
-    // switch (task) {
-    //     case "submit":
-    //         console.log("Submitting...")
-    //         await chain.generateReport(account, filename, `${Buffer.from(source_code, 'base64').toString('utf8')}`)
-    //         console.log("Report attached.")
-    //         break
-    //     case "query":
-    //         console.log("Querying...")
-    //         const report = await chain.query(query)
-    //         await chain.saveReport("defi", "Validator Selection Result", report)
-    //         console.log("Report saved.")
-    //         break
-    // }
-
-
-    switch (task) {
-        case "query":
-            console.log("Querying with ", prompts.length, " prompts")
-
-            let count = 0
-
-            for (let prompt of prompts) {
-                const report = await chain.query(prompt)
-                const title = titles[count] ? titles[count] : `Unnamed ${(new Date().toISOString())}`
-                await chain.saveReport(account, title, report)
-                console.log("Report saved for ", title)
-                count += 1
-            }
-
-            break
+    try {
+        switch (task) {
+            case "query":
+                const contextInfo = await accountManager.getContext(context)
+                await chain.executeJobs(contextInfo, 10)
+                break
+        }
+    } catch (e) {
+        console.log(e)
     }
 
+    console.log("Worker done.")
 }
 
 // Queue
@@ -108,20 +86,18 @@ app.post("/auth/login", async (req, res) => {
 app.post("/submit", async (req, res) => {
 
     const { body } = req
-    const { account, sessionId, context, titles, prompts } = body
+    const { account, sessionId, context, title, prompt } = body
 
     try {
 
-        const credits = prompts.length
+        await accountManager.deduct(account, sessionId, 10)
 
-        await accountManager.deduct(account, sessionId, credits * 10)
-
-        queue.push({
+        await chain.addJob({
             task: "query",
-            account,
             context,
-            titles,
-            prompts
+            account,
+            title,
+            prompt
         })
 
         return res.status(200).json({ status: "ok" });
@@ -131,3 +107,73 @@ app.post("/submit", async (req, res) => {
     }
 
 })
+
+// get all jobs
+
+app.get("/jobs", async (req, res) => {
+
+    try {
+
+        const savedJobs = await chain.listJobs()
+
+        return res.status(200).json({
+            status: "ok", jobs: savedJobs.map((item) => {
+                return {
+                    context: item.context,
+                    account: item.account,
+                    title: item.title,
+                    prompt_size: item.prompt.length,
+                    timestamp: item.timestamp
+                }
+            })
+        })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+// get context
+
+app.get("/context/:name", async (req, res) => {
+
+    const { params } = req
+    const { name } = params
+
+    try {
+        return res.status(200).json({ status: "ok", [name]: await accountManager.getContext(name) })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+// get reports
+
+app.get("/report/:account", async (req, res) => {
+
+    const { params } = req
+    const { account } = params
+
+    try {
+        return res.status(200).json({ status: "ok", reports: await chain.getReport(account) })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+})
+
+// Execute jobs
+
+
+const executeJobs = async () => {
+
+    queue.push({
+        task: "query",
+        context: "default"
+    })
+
+    // More context
+
+}
+
+cron.schedule('*/5 * * * *', executeJobs)

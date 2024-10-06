@@ -5,6 +5,9 @@ const nextConfig = {
     PORT: process.env.API_PORT,
   },
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

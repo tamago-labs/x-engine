@@ -44,7 +44,7 @@ class AccountManagement {
                             "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/sui-vs-aptos-move-differences.md"
                         ]
                     },
-                    "optimize-gas": {
+                    "gas-optimize": {
                         "system_prompt": "",
                         "resources": [
 
