@@ -2,6 +2,7 @@ import AuthModal from "@/modals/auth";
 import { createContext, useCallback, useEffect, useMemo, useReducer } from "react";
 import axios from "axios";
 import { ethers } from "ethers"
+import { faker } from "@faker-js/faker"
 
 export const AuthContext = createContext({})
 
@@ -89,59 +90,60 @@ const Provider = ({ children }) => {
 
     }, [])
 
-    // const submit = useCallback(async (session, filename, source_code) => {
+    const submit = useCallback(async (context, session, file) => {
 
-    //     try {
+        try {
 
-    //         await axios.post(`${hostname}/submit`, {
-    //             account: session.email,
-    //             filename,
-    //             source_code,
-    //             sessionId: session.sessionId,
-    //         })
+            const payload = {
+                account: session.email,
+                sessionId: session.sessionId,
+                context,
+                title: `Review ${file.file_name}`,
+                prompt: [
+                    "From the below source code, give code review including vulnerability score ranging from 0-100%",
+                    `${atob(file.source_code)}`,
+                ].join()
+            }
 
-    //         session.credits = session.credits - 10
+            console.log("payload:", payload)
 
-    //         await saveSession(session)
-    //     } catch (e) {
-    //         throw new Error(e.response.data.message)
-    //     }
+            await axios.post(`${hostname}/submit`, payload)
 
-    // }, [])
+            session.credits = session.credits - 10
 
-    // const getReport = useCallback(async (username) => {
+            await saveSession(session)
 
-    //     try {
-    //         const { data } = await axios.get(`${hostname}/report/${username}`)
-    //         return data.reports
-    //     } catch (e) {
-    //         alert(e && e.response && e.response.data || e.message)
-    //         console.log(e)
-    //         return []
-    //     }
+            return undefined
+        } catch (e) {  
+            return `${e.response.data.message}`
+        }
 
-    // }, [])
+    }, [])
 
-    // const getContext = useCallback(async (session) => {
+    const getReport = useCallback(async (username) => {
 
-    //     const entries = session ? session.context : []
+        try {
+            const { data } = await axios.get(`${hostname}/report/${username}`)
+            return data.reports
+        } catch (e) { 
+            console.log(e)
+            return []
+        }
 
-    //     let output = []
+    }, [])
 
-    //     try {
-    //         for (let entry of entries) {
-    //             const response = await axios.get(entry)
-    //             output.push(response.data)
-    //         }
+    const getJobs = useCallback(async () => {
 
-    //         return output
-    //     } catch (e) {
-    //         alert(e && e.response && e.response.data || e.message)
-    //         console.log(e)
-    //         return []
-    //     }
+        try {
+            const { data } = await axios.get(`${hostname}/jobs`)
+            return data.jobs
+        } catch (e) { 
+            console.log(e)
+            return []
+        }
 
-    // }, [])
+    }, [])
+ 
 
     const getContext = useCallback(async (contextName) => {
 
@@ -167,11 +169,10 @@ const Provider = ({ children }) => {
         () => ({
             isLoggedIn,
             signIn,
-            // submit,
+            submit,
             getContext,
-            // getReport,
-            // logIn,
-            // logOut,
+            getReport,
+            getJobs,
             session,
             checkSession
         }), [

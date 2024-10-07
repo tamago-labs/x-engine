@@ -199,7 +199,7 @@ class RagChain {
                 console.log("Querying for:", item.title)
                 const report = await this.query(item.prompt)
 
-                await this.saveReport(item.account, item.report, report)
+                await this.saveReport(item.account, item.title, report)
                 console.log("Report saved for ", item.title)
             }
         }

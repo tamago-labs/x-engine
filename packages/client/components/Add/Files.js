@@ -54,19 +54,9 @@ const Files = ({ selected, setSelect }) => {
     const [modal, setModal] = useState(MODAL.NONE)
 
     const { session } = useContext(AuthContext)
-
     const { openStart } = useContext(ModalContext)
-
-    const {  default_project, projects, loadProjects } = useContext(AccountContext)
-
+    const {  default_project, projects } = useContext(AccountContext)
     const [project_name, setProject] = useState(default_project)
-
-    useEffect(() => {
-        loadProjects()
-        // eslint-disable-line
-    }, [])
-
-
 
     const project = project_name && projects && projects.find(item => item.project_name === project_name)
 

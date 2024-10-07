@@ -9,13 +9,9 @@ const Add = () => {
 
   const { getContext, session } = useContext(AuthContext)
 
-
   const [select, setSelect] = useState()
   const [context, setContext] = useState([])
 
-  // useEffect(() => {
-  //   session && getContext(session).then(setContext)
-  // }, [session])
 
 
   return (
@@ -33,15 +29,6 @@ const Add = () => {
           setSelect={setSelect}
         />
       </div>
-      {/* <div className={`col-span-2 bg-neutral-900 pt-[29px]  `}>
-        <SubNavbar
-          title="Context"
-          select={select}
-          setSelect={setSelect}
-          list={context}
-          isContext={true}
-        />
-      </div> */}
     </div>
   )
 }

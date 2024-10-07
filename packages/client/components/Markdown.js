@@ -1,5 +1,5 @@
 
-import { slugify } from "@/helpers"
+import { shortAddress } from "@/helpers"
 import { useCallback, useContext, useEffect } from "react"
 import { X } from "react-feather"
 import Markdown from 'react-markdown'
@@ -7,7 +7,7 @@ import Editor from '@monaco-editor/react';
 import { AccountContext } from "@/hooks/useAccount";
 
 const MarkdownDisplay = ({ content, setSelect, close }) => {
-
+ 
     const { saveFile } = useContext(AccountContext)
 
     const onSave = useCallback((value, event) => {
@@ -27,7 +27,7 @@ const MarkdownDisplay = ({ content, setSelect, close }) => {
                     {content && (
                         <div className='bg-[#1E1E1E] text-[#D4D4D4] font-mono px-4 flex border-neutral-600 border-r '>
                             <div className='m-auto'>
-                                {content && content.source_code === false && slugify(content.value.split("#")[1].split("\n")[0])}
+                                {content && content.source_code === false &&  shortAddress(content.value)}
                                 {content && content.source_code === true && `${content.name}`}
                             </div>
                             <div onClick={close} className='m-auto'>

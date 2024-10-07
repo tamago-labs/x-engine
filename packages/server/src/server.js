@@ -176,4 +176,4 @@ const executeJobs = async () => {
 
 }
 
-cron.schedule('*/5 * * * *', executeJobs)
+cron.schedule('*/10 * * * *', executeJobs)

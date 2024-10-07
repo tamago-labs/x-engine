@@ -22,9 +22,9 @@ const HelpModal = ({ visible, close }) => {
                 </div> 
                 <h2 className="text-center text-xl w-[300px] mx-auto font-semibold mt-6 ">Welcome to X-Engine!</h2>
                 <div className='my-4 border-neutral-600 border-t pt-4 flex text-sm sm:text-base px-0 sm:px-2 text-gray-100 '>
-                    <div className="w-full max-w-[400px] mx-auto">
+                    <div className="w-full max-w-[420px] mx-auto">
                         <li>Now featuring gas optimization and vulnerability detection with AI for Move contracts. </li>
-                        <li>Reviews are now processed in batches once a day to help reduce costs.</li>
+                        <li>Reviews are processed in batches to help reduce costs.</li>
                         <li>Each user receives 30 © and 10 © daily after.</li>
                     </div>
                 </div>

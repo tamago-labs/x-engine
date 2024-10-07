@@ -7,11 +7,13 @@ import 'aos/dist/aos.css';
 
 import { LayoutContext } from "@/hooks/useLayout";
 import { AuthContext } from "@/hooks/useAuth";
+import { AccountContext } from "@/hooks/useAccount";
 
 const MainLayout = ({ children }) => {
 
-    const [showLoader, setShowLoader] = useState(true); 
-    const { checkSession } = useContext(AuthContext)
+    const [showLoader, setShowLoader] = useState(true);
+    const { checkSession, session } = useContext(AuthContext)
+    const { loadProjects } = useContext(AccountContext)
 
     useEffect(() => {
 
@@ -33,6 +35,10 @@ const MainLayout = ({ children }) => {
     useEffect(() => {
         !showLoader && checkSession()
     }, [showLoader])
+
+    useEffect(() => {
+        session && loadProjects()
+    }, [session])
 
     return (
         <>
