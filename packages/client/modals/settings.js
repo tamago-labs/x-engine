@@ -1,18 +1,35 @@
 import { HOST } from "@/constants"
 import BaseModal from "./base"
 import { useCallback, useContext } from "react"
-import { AccountContext } from "@/hooks/useAccount" 
+import { AccountContext } from "@/hooks/useAccount"
 import useCredit from "@/hooks/useCredit";
+import { AuthContext } from "@/hooks/useAuth";
 
-const Settings = ({visible, close}) => {
+const Settings = ({ visible, close }) => {
+
+    const { logOut, session } = useContext(AuthContext)
+
     return (
         <BaseModal
             visible={visible}
-            title="Options"
+            // title="Settings"
             close={close}
-            maxWidth="max-w-lg"
+            maxWidth="max-w-4xl"
         >
-            settings
+
+            <div className="h-[200px]">
+
+            </div>
+
+            {/* <div className="flex  ">
+                <button disabled={!session} onClick={() => {
+                    close()
+                    logOut()
+                }} className={`bg-white text-sm w-[150px]  ${ !session && "opacity-60"}  text-black font-bold py-2 rounded-md `}>
+                    Logout
+                </button>
+            </div> */}
+
         </BaseModal>
     )
 }
@@ -27,7 +44,7 @@ const Settings = ({visible, close}) => {
 //     const { faucet, buyCredit } = useCredit()
 
 //     const onFaucet = useCallback(async () => {
-        
+
 //         try {
 //             await faucet() 
 //             window.location.reload()

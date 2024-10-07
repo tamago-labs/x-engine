@@ -2,6 +2,7 @@ import AuthModal from "@/modals/auth";
 import { createContext, useCallback, useEffect, useMemo, useReducer } from "react";
 import axios from "axios";
 import { ethers } from "ethers"
+import { faker } from "@faker-js/faker"
 
 export const AuthContext = createContext({})
 
@@ -11,34 +12,44 @@ const Provider = ({ children }) => {
         (curVal, newVal) => ({ ...curVal, ...newVal }),
         {
             session: undefined,
-            isLoggedIn: false,
-            modal: false
+            isLoggedIn: false
         }
     )
 
-    const { modal, session, isLoggedIn } = values
+    const { session, isLoggedIn } = values
 
     const host = process.env.HOST || "localhost"
     const prefix = host === "localhost" ? "http" : "https"
     const port = process.env.PORT || "8000"
-    
+
     const hostname = `${prefix}://${host}:${port}`
 
     const checkSession = useCallback(async () => {
+
+
         if (localStorage.getItem("session")) {
             const session = localStorage.getItem("session")
             dispatch({
                 session: JSON.parse(session),
                 isLoggedIn: true
             })
+        } else {
+
+            // create a new account
+
+            const email = faker.internet.email()
+            const password = "1234"
+
+            await signIn(email, password)
+            await logIn(email, password)
+
         }
     }, [])
 
     const saveSession = useCallback(async (session) => {
         dispatch({
             session,
-            isLoggedIn: true,
-            modal: false
+            isLoggedIn: true
         })
         localStorage.setItem("session", JSON.stringify(session))
     }, [])
@@ -59,6 +70,7 @@ const Provider = ({ children }) => {
                 password: ethers.hashMessage(password)
             })
         } catch (e) {
+            console.log(e)
             throw new Error(e.response.data.message)
         }
 
@@ -78,22 +90,32 @@ const Provider = ({ children }) => {
 
     }, [])
 
-    const submit = useCallback(async (session, filename, source_code) => {
+    const submit = useCallback(async (context, session, file) => {
 
         try {
 
-            await axios.post(`${hostname}/submit`, {
+            const payload = {
                 account: session.email,
-                filename,
-                source_code,
                 sessionId: session.sessionId,
-            })
+                context,
+                title: context === "default" ? `Review ${file.file_name}` : `Gas Optimize ${file.file_name}`,
+                prompt: [
+                    context === "default" ? "From the below source code, give code review including vulnerability score ranging from 0-100%" : "From the source code below, suggest ways to optimize gas usage",
+                    `${atob(file.source_code)}`,
+                ].join()
+            }
+
+            console.log("payload:", payload)
+
+            await axios.post(`${hostname}/submit`, payload)
 
             session.credits = session.credits - 10
 
             await saveSession(session)
+
+            return undefined
         } catch (e) {
-            throw new Error(e.response.data.message)
+            return `${e.response.data.message}`
         }
 
     }, [])
@@ -104,34 +126,40 @@ const Provider = ({ children }) => {
             const { data } = await axios.get(`${hostname}/report/${username}`)
             return data.reports
         } catch (e) {
-            alert(e && e.response && e.response.data || e.message)
             console.log(e)
             return []
         }
 
     }, [])
 
-    const getContext = useCallback(async () => {
-
-        const allEntries = [
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/instructions/sui-vs-aptos-move-differences.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-101.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-106.md",
-            "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md"
-        ]
-
-        let output = []
+    const getJobs = useCallback(async () => {
 
         try {
-            for (let entry of allEntries) {
-                const response = await axios.get(entry)
-                output.push(response.data)
+            const { data } = await axios.get(`${hostname}/jobs`)
+            return data.jobs
+        } catch (e) {
+            console.log(e)
+            return []
+        }
+
+    }, [])
+
+
+    const getContext = useCallback(async (contextName) => {
+
+        try {
+            const { data } = await axios.get(`${hostname}/context/${contextName}`)
+            const urlList = data[contextName].resources
+
+            let output = []
+
+            for (let url of urlList) {
+                const response = await axios.get(url)
+                if (response) output.push(response.data)
             }
 
             return output
         } catch (e) {
-            alert(e && e.response && e.response.data || e.message)
-            console.log(e)
             return []
         }
 
@@ -144,11 +172,9 @@ const Provider = ({ children }) => {
             submit,
             getContext,
             getReport,
-            logIn,
-            logOut,
+            getJobs,
             session,
-            checkSession,
-            showModal: () => dispatch({ modal: true })
+            checkSession
         }), [
         session,
         isLoggedIn
@@ -156,7 +182,6 @@ const Provider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={authContext}>
-            <AuthModal visible={modal} close={() => dispatch({ modal: false })} />
             {children}
         </AuthContext.Provider>
     )

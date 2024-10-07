@@ -5,14 +5,15 @@ import Navbar from "@/components/Navbar"
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
-import { LayoutContext } from "@/hooks/useLayout"; 
+import { LayoutContext } from "@/hooks/useLayout";
 import { AuthContext } from "@/hooks/useAuth";
+import { AccountContext } from "@/hooks/useAccount";
 
 const MainLayout = ({ children }) => {
 
     const [showLoader, setShowLoader] = useState(true);
-    const { selectNetwork } = useContext(LayoutContext)
-    const { checkSession } = useContext(AuthContext)
+    const { checkSession, session } = useContext(AuthContext)
+    const { loadProjects } = useContext(AccountContext)
 
     useEffect(() => {
 
@@ -33,9 +34,11 @@ const MainLayout = ({ children }) => {
 
     useEffect(() => {
         !showLoader && checkSession()
-    },[showLoader])
+    }, [showLoader])
 
-
+    useEffect(() => {
+        session && loadProjects()
+    }, [session])
 
     return (
         <>
@@ -72,33 +75,11 @@ const MainLayout = ({ children }) => {
                                 begin="0s"
                             ></animate>
                         </circle>
-                        {/* <circle cx="50" cy="50" r="0" fill="none" stroke="#262626" strokeWidth="4">
-                            <animate
-                                attributeName="r"
-                                repeatCount="indefinite"
-                                dur="1s"
-                                values="0;16"
-                                keyTimes="0;1"
-                                keySplines="0 0.2 0.8 1"
-                                calcMode="spline"
-                                begin="-0.5s"
-                            ></animate>
-                            <animate
-                                attributeName="opacity"
-                                repeatCount="indefinite"
-                                dur="1s"
-                                values="1;0"
-                                keyTimes="0;1"
-                                keySplines="0.2 0 0.8 1"
-                                calcMode="spline"
-                                begin="-0.5s"
-                            ></animate>
-                        </circle> */}
                     </svg>
                 </div>
             )}
 
-            <div className='flex min-h-screen flex-col bg-neutral-800 text-base font-normal text-gray antialiased  '>
+            <div className='flex min-h-screen flex-col bg-neutral-800 text-base font-normal text-gray antialiased font-mono '>
                 <div className="-mt-[29px] flex-glow overflow-x-hidden flex flex-row">
                     <aside className=" bg-neutral-800 text-white w-[60px] flex flex-col min-h-screen   border-r border-neutral-600  ">
                         <Navbar />
@@ -112,5 +93,7 @@ const MainLayout = ({ children }) => {
         </>
     )
 }
+
+
 
 export default MainLayout

@@ -205,7 +205,7 @@ const Provider = ({ children }) => {
         dispatch({ projects: attachFiles(EXAMPLE_CONTRACTS.concat(new_list)) })
     }
 
-    const saveFile = async (selected, project_name, file_name, source_code) => {
+    const saveFile = async (selected, setSelect, project_name, file_name, source_code) => {
 
         let file_list = JSON.parse(localStorage.getItem(project_name))
 
@@ -216,11 +216,12 @@ const Provider = ({ children }) => {
         })
  
         selected.raw_value = btoa(source_code)
+        selected.value = source_code
+
 
         localStorage.setItem(project_name, JSON.stringify(file_list))
 
-        dispatch({ selected })
-
+        setSelect(selected)
     }
 
     const deleteFile = async (project_name, file_name) => {

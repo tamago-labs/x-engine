@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors"
 import * as fastq from "fastq";
-import Account from "./core/account.js";
-import RagChain from "./core/ragChain.js";
 import cron from "node-cron"
-
+import Account from "./core/account.js"
+import RagChain from "./core/ragChain.js"
 
 export const app = express()
 
@@ -21,32 +20,22 @@ app.use(cors())
 // Setup a worker
 const onWorker = async (args) => {
 
-    const { task, account, filename, source_code, query } = args
+    const { task, context } = args
 
-    await chain.init([
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/instructions/sui-vs-aptos-move-differences.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-101.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-106.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/main/packages/MSWC-registry/MSWC-107.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/cosmostation.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/move-vector-limitations.md",
-        "https://raw.githubusercontent.com/tamago-labs/x-engine/defi/packages/context/everstake.md"
-    ])
+    console.log("Worker started: ", context, " jobs")
 
-    switch (task) {
-        case "submit":
-            console.log("Submitting...")
-            await chain.generateReport(account, filename, `${Buffer.from(source_code, 'base64').toString('utf8')}`)
-            console.log("Report attached.")
-            break
-        case "query":
-            console.log("Querying...")
-            const report = await chain.query(query)
-            await chain.saveReport("defi", "Validator Selection Result", report)
-            console.log("Report saved.")
-            break
+    try {
+        switch (task) {
+            case "query":
+                const contextInfo = await accountManager.getContext(context)
+                await chain.executeJobs(contextInfo, 10)
+                break
+        }
+    } catch (e) {
+        console.log(e)
     }
 
+    console.log("Worker done.")
 }
 
 // Queue
@@ -54,17 +43,21 @@ const queue = fastq.promise(onWorker, 1)
 
 // Routes
 
-// health-check
+// Health check route to verify if the server is running
 app.get('/', async (req, res) => {
     return res.status(200).json({ status: "ok" });
 })
 
+// User signup route
 app.post("/auth/signup", async (req, res) => {
 
     const { body } = req
+
+    // Password must be hashed on the frontend
     const { username, password } = body
 
     try {
+        // Attempt to sign up the user with the provided credentials
         await accountManager.signUp(username, password)
         return res.status(200).json({ status: "ok", username })
     } catch (e) {
@@ -73,9 +66,12 @@ app.post("/auth/signup", async (req, res) => {
 
 })
 
+// User login route
 app.post("/auth/login", async (req, res) => {
 
     const { body } = req
+
+    // Password must be hashed on the frontend
     const { username, password } = body
 
     try {
@@ -87,22 +83,21 @@ app.post("/auth/login", async (req, res) => {
 
 })
 
-// MOVE CODE-REVIEW
-
 app.post("/submit", async (req, res) => {
 
     const { body } = req
-    const { account, filename, source_code, sessionId } = body
+    const { account, sessionId, context, title, prompt } = body
 
     try {
 
-        await accountManager.deduct(account, sessionId, filename, 10)
+        await accountManager.deduct(account, sessionId, 10)
 
-        queue.push({
-            task: "submit",
+        await chain.addJob({
+            task: "query",
+            context,
             account,
-            filename,
-            source_code
+            title,
+            prompt
         })
 
         return res.status(200).json({ status: "ok" });
@@ -112,6 +107,48 @@ app.post("/submit", async (req, res) => {
     }
 
 })
+
+// get all jobs
+
+app.get("/jobs", async (req, res) => {
+
+    try {
+
+        const savedJobs = await chain.listJobs()
+
+        return res.status(200).json({
+            status: "ok", jobs: savedJobs.map((item) => {
+                return {
+                    context: item.context,
+                    account: item.account,
+                    title: item.title,
+                    prompt_size: item.prompt.length,
+                    timestamp: item.timestamp
+                }
+            })
+        })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+// get context
+
+app.get("/context/:name", async (req, res) => {
+
+    const { params } = req
+    const { name } = params
+
+    try {
+        return res.status(200).json({ status: "ok", [name]: await accountManager.getContext(name) })
+    } catch (e) {
+        return res.status(500).json({ status: "error", message: e.message })
+    }
+
+})
+
+// get reports
 
 app.get("/report/:account", async (req, res) => {
 
@@ -125,24 +162,21 @@ app.get("/report/:account", async (req, res) => {
     }
 })
 
+// Execute jobs
 
-// DEFI
 
-// Daily reports are generated for DeFi operations such as validator selection.
+const executeJobs = async () => {
 
-const generateDeFiReport = async () => {
-
-    // Validator Selection
     queue.push({
         task: "query",
-        account: "defi",
-        query: [
-            "From the list of validators below, choose the one that is best for staking at the moment:",
-            "- Cosmostation",
-            "- Everstake"
-        ].join()
+        context: "default"
+    })
+
+    queue.push({
+        task: "query",
+        context: "gas-optimize"
     })
 
 }
 
-cron.schedule('0 1 * * *', generateDeFiReport)
+cron.schedule('*/10 * * * *', executeJobs)

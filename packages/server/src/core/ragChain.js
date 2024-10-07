@@ -47,6 +47,7 @@ const model = new ChatAnthropic({
 const defaultSystemPrompt = [
     `You are an AI agent assigned to review source code. `,
     `Use the following pieces of context to answer the question without referring to the example source code.`,
+    `Return vulnerability scores as an array at the beginning.`,
     `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
     `\n\n`,
     `Context: {context}`,
@@ -57,20 +58,35 @@ class RagChain {
     constructor() {
         this.is_init = false
         this.db = new PouchDB(`${env.NODE_ENV}:document`)
+        this.setup()
     }
 
-    init = async (urls = []) => {
-        if (this.is_init === false) { 
+    // Setup a shared account for storing tests
+    setup = async () => {
+
+        try {
+            await this.db.put({
+                _id: "system",
+                jobs: []
+            })
+        } catch (e) {
+
+        }
+
+    }
+
+    init = async (urls = [], systemPrompt = defaultSystemPrompt) => {
+        if (this.is_init === false) {
             let count = 0
             let fileIds = []
             for (let url of urls) {
-                const { data } = await axios.get(url) 
+                const { data } = await axios.get(url)
                 const key = `document-${count}`
                 fileIds.push(key)
                 await this.add(key, Buffer.from(data).toString('base64'))
-                count = count + 1 
+                count = count + 1
             }
-            await this.build(fileIds)
+            await this.build(fileIds, systemPrompt)
             this.is_init = true
         }
     }
@@ -99,7 +115,6 @@ class RagChain {
             retriever: vectorstore.asRetriever(),
             combineDocsChain: questionAnswerChain,
         });
-
     }
 
     query = async (input) => {
@@ -114,56 +129,122 @@ class RagChain {
         return result.answer
     }
 
-    generateReport = async (account, filename, source_code) => {
+    addJob = async (job) => {
 
-        const result = await this.query([
-            "From the below source code, give code review including vulnerability score ranging from 0-100%",
-            source_code,
-        ].join())
+        let entry = await this.db.get("system")
 
-        const mkd = new Markdown(`Review Summary - ${filename}`)
-        mkd.paragraph(result)
+        job.timestamp = new Date().valueOf()
 
-        try {
-            let entry = await this.db.get(account)
-            entry.reports.push(mkd.render())
-            await this.db.put(entry)
-        } catch (e) {
-            const item = {
-                _id: account,
-                reports: [
-                    mkd.render()
-                ]
-            }
-            await this.db.put(item)
+        const { account, title } = job
+
+        if (entry.jobs.find(item => (item.title === title) && (item.account === account))) {
+            entry.jobs.map((item) => {
+                if ((item.title === title) && (item.account === account)) {
+                    item = job
+                }
+                return item
+            })
+        } else {
+            entry.jobs.push({
+                ...job
+            })
         }
 
-        return result
+        await this.db.put(entry)
+    }
+
+    listJobs = async (context = undefined) => {
+
+        const entry = await this.db.get("system")
+
+        if (!context) {
+            return entry.jobs
+        } else {
+            return entry.jobs.filter(item => item.context === context)
+        }
+    }
+
+    executeJobs = async (context, max = 3) => {
+
+        let entry = await this.db.get("system")
+        const total_items = (entry.jobs.filter(item => item.context === context.context_name)).length
+
+        console.log("Total item to execute : ", total_items)
+
+        if (total_items > 0 && max > 0 && max <= 100) {
+
+            console.log("Building RAG")
+
+            // Build RAG chain
+            await this.init( context.resources, context.system_prompt )
+            
+            let count = 0;
+            let item_list = []
+
+            entry.jobs = entry.jobs.reduce((arr, item) => {
+
+                if ( item.context === context.context_name && max > count) {
+                    item_list.push(item)
+                    count +=1 
+                } else {
+                    arr.push(item)
+                }
+
+                return arr
+            }, [])
+
+            await this.db.put(entry)
+
+            for (let item of item_list) {
+                console.log("Querying for:", item.title)
+                const report = await this.query(item.prompt)
+
+                await this.saveReport(item.account, item.title, report)
+                console.log("Report saved for ", item.title)
+            }
+        }
+
     }
 
     saveReport = async (account, title, report) => {
-        const mkd = new Markdown(`${title}`)
-        mkd.paragraph(report)
 
         try {
+
             let entry = await this.db.get(account)
-            entry.reports.push(mkd.render())
+
+            if (entry.reports.find(item => item.title === title)) {
+                entry.reports.map((item) => {
+                    if (item.title === title) {
+                        item.value = report
+                    }
+                    return item
+                })
+            } else {
+                entry.reports.push({
+                    title,
+                    value: report
+                })
+            }
             await this.db.put(entry)
         } catch (e) {
+
             const item = {
                 _id: account,
                 reports: [
-                    mkd.render()
+                    {
+                        title,
+                        value: report
+                    }
                 ]
             }
+
             await this.db.put(item)
         }
-
     }
 
     getReport = async (account) => {
         try {
-            const entry = await this.db.get(account) 
+            const entry = await this.db.get(account)
             return entry.reports
         } catch (e) {
             return []
@@ -222,6 +303,7 @@ class RagChain {
     destroy = async () => {
         await this.db.destroy();
     }
+
 }
 
 export default RagChain
