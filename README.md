@@ -1,6 +1,6 @@
 # AI-Code Review for Move Smart Contracts
 
-**The project started and received 1st place in the AI x Web3 track at the [ moveonaptos.dev](https://moveonaptos.dev/) hackathon in July'24. We continue to add more features to enhance security and support smarter development on Move with AI.**
+![Screenshot from 2024-10-07 18-38-56.png](https://cdn.dorahacks.io/static/files/19266593268c7fc86031c0245e09564e.png)
 
 Smart contract audits are costly, especially today when the focus isn't solely on the Ethereum chain. Deploying smart contracts to multiple chains requires separate audits for each chain and each smart contract language, making it impossible for smaller projects to afford.
 
@@ -8,25 +8,68 @@ We provide an AI solution for quickly reviewing smart contracts and generating r
 
 **Please be aware that the project is still in its very early stages and may contain bugs and incomplete features. Use it at your own risk, and note that this cannot replace a full security audit.**
 
+- [YouTube](https://www.youtube.com/watch?v=ULfa7UELpHM)
+- [App](https://app.tamagolabs.com)
+
 ## Features
 
-* Powered by Claude AI, Voyage AI and Langchain
-* Built for Move (Aptos, Sui)
-* RAG-based training with various vulnerability patterns
-* Automatic report generator
-* Built-in IDE
+* Automatic detection of various vulnerabilities
+* Gas optimization suggestions based on academically proven resources
+* Built-in IDE for seamless code review and editing
+* Free and open source
+* Powered by advanced AI models like Claude AI, Voyage AI and LangChain
 
-## Use Cases
+## System Overview
 
-There are several use cases for the AI code review tool as follows:
+The system comprises a frontend and backend. The backend integrates with external AI services to process code reviews:
 
-* Expansion to Move-based chains (Aptos, Sui, Movement).
-* Currently developing Move-native applications and preparing for a full security audit.
-* The project is in its early stages and needs a code review report to gain early traction.
+* **Claude AI** – Main LLM
+* **Voyage AI** – Text embeddings
+* **LangChain** – Prompt preparation
 
-## Context
+Currently, the system can run two workflows, each with a different set of contexts (resources) and prompts. For now, we do not charge for usage, but each user is limited to making 1 request per day and 3 requests on the first day using the credit-based system.
 
-We extend the knowledge capacity of the LLM (Claude AI in our case) using the RAG approach by providing context for the AI to understand before further analyzing the source code. The context can be divided into 2 groups as follows:
+Like any RAG application, we must provide a guidance prompt to structure the output, define the rules, and set conditions before making a call to the LLM via the LangChain SDK. The gas optimization workflow is displayed below.
+
+```
+`You are an AI agent assigned to suggest improvements on the provided source code. `,
+`Use the following pieces of context to answer the question without referring to the example source code.`,
+`Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
+`\n\n`,
+`Context: {context}`,
+```
+
+For each request, the source code will be wrapped into another prompt.
+
+```
+"From the source code below, suggest ways to optimize gas usage",
+`${Buffer.from(source_code, 'base64').toString('utf8')}`,
+```
+
+The backend has its own database to store account data (which is randomly generated on the frontend side), context data and reports. When a request is submitted, it is attached to a temporary database until a cron job consumes and processes all active jobs every 10 minutes. This helps us reduce costs when building a RAG chain.
+
+## Gas Optimization
+
+This detector allows AI to read through submitted smart contracts and suggest gas optimization improvements in a human-readable, point-by-point report based on academically proven resources as context. This detector is highly useful and fully functional. Anyone can submit Move contracts and optimize gas on the fly.
+
+The table below shows the context we provide for this detector.
+
+| ID                           | Title                                    | References                                                                                           |
+| ---------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------|
+| [aptos-move-gas-optimization](./packages/context/aptos-move-gas-optimization.md)    | Aptos Move Gas Optimization         |      |
+
+The example result can be displayed below
+
+```
+Avoid unnecessary operations: 
+In the currentStandings function, you can simplify the calculation by removing the unnecessary multiplication and division operations.
+Instead of (op_store.trueVotes*100/op_store.totalVotes*100)/100, you can use op_store.trueVotes*100/op_store.totalVotes.
+This will reduce the number of operations and potentially save gas.
+```
+
+## Vulnerability Detection
+
+This detector extends the knowledge capacity of the LLM (Claude AI in our case) using the RAG approach by providing context for the AI to understand before further analyzing the source code. The context can be divided into 2 groups as follows:
 
 *  Move language-specific practices
 *  Porting from Ethereum's EIP-1470 (https://github.com/SmartContractSecurity/SWC-registry)
@@ -85,23 +128,21 @@ Once everything is ready, we can start the system by
 npm start
 ```
 
-There is a `credit_system` folder that contains the smart contract for the credit system, including Mock USDC. The concept is to purchase credits for each report generation since API services are not free. In the long run, we should implement this credit system permanently to cover all expenses.
-
-Tests for the smart contract and backend can also be run by:
+Tests for backend can also be run by:
 
 ```
 npm run test-backend
-npm run test-credit
 ```
 
-## Roadmap
+The whole system can start by:
 
-We are working on the following improvements for our upcoming beta version:
-- Summarizing common vulnerabilities in Move contracts into a specification.
-- Reviewing based on these vulnerabilities.
-- The more vulnerabilities checked, the more credits paid.
-- Gamification credit system.
-- Account creation allows the report to be shared publicly.
+```
+npm start
+```
+
+## Awards & Recognition
+
+- (Vulnerability Detection) 1st place in the AI x Web3 track at the [ moveonaptos.dev](https://moveonaptos.dev/) hackathon 
 
 ## Links
 
