@@ -34,7 +34,6 @@ const StartProcessModal = ({ visible, close }) => {
             return
         }
 
-
         const is_done = await submit(contextName, session, selected)
 
         if (!is_done) {

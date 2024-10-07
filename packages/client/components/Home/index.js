@@ -18,8 +18,7 @@ const Home = () => {
     useInterval(() => {
         getJobs().then(setJobs)
     }, 3000)
-
-    console.log("jobs : ", jobs)
+ 
 
     return (
         <div className="bg-neutral-900 min-h-screen flex  pt-[29px]">

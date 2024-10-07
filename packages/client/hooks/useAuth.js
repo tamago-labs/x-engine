@@ -98,9 +98,9 @@ const Provider = ({ children }) => {
                 account: session.email,
                 sessionId: session.sessionId,
                 context,
-                title: `Review ${file.file_name}`,
+                title: context === "default" ? `Review ${file.file_name}` : `Optimize ${file.file_name}`,
                 prompt: [
-                    "From the below source code, give code review including vulnerability score ranging from 0-100%",
+                    context === "default" ? "From the below source code, give code review including vulnerability score ranging from 0-100%" : "From the source code below, suggest ways to optimize gas usage",
                     `${atob(file.source_code)}`,
                 ].join()
             }
@@ -114,7 +114,7 @@ const Provider = ({ children }) => {
             await saveSession(session)
 
             return undefined
-        } catch (e) {  
+        } catch (e) {
             return `${e.response.data.message}`
         }
 
@@ -125,7 +125,7 @@ const Provider = ({ children }) => {
         try {
             const { data } = await axios.get(`${hostname}/report/${username}`)
             return data.reports
-        } catch (e) { 
+        } catch (e) {
             console.log(e)
             return []
         }
@@ -137,13 +137,13 @@ const Provider = ({ children }) => {
         try {
             const { data } = await axios.get(`${hostname}/jobs`)
             return data.jobs
-        } catch (e) { 
+        } catch (e) {
             console.log(e)
             return []
         }
 
     }, [])
- 
+
 
     const getContext = useCallback(async (contextName) => {
 

@@ -172,7 +172,10 @@ const executeJobs = async () => {
         context: "default"
     })
 
-    // More context
+    queue.push({
+        task: "query",
+        context: "gas-optimize"
+    })
 
 }
 

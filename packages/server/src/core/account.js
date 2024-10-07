@@ -45,9 +45,15 @@ class AccountManagement {
                         ]
                     },
                     "gas-optimize": {
-                        "system_prompt": "",
+                        "system_prompt": [
+                            `You are an AI agent assigned to suggest improvements on the provided source code. `,
+                            `Use the following pieces of context to answer the question without referring to the example source code.`,
+                            `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
+                            `\n\n`,
+                            `Context: {context}`,
+                        ].join(""),
                         "resources": [
-
+                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/aptos-move-gas-optimization.md"
                         ]
                     }
                 },
