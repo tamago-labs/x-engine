@@ -98,7 +98,7 @@ const Provider = ({ children }) => {
                 account: session.email,
                 sessionId: session.sessionId,
                 context,
-                title: context === "default" ? `Review ${file.file_name}` : `Optimize ${file.file_name}`,
+                title: context === "default" ? `Review ${file.file_name}` : `Gas Optimize ${file.file_name}`,
                 prompt: [
                     context === "default" ? "From the below source code, give code review including vulnerability score ranging from 0-100%" : "From the source code below, suggest ways to optimize gas usage",
                     `${atob(file.source_code)}`,
