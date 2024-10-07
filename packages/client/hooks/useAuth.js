@@ -29,10 +29,8 @@ const Provider = ({ children }) => {
 
         if (localStorage.getItem("session")) {
             const session = localStorage.getItem("session")
-            dispatch({
-                session: JSON.parse(session),
-                isLoggedIn: true
-            })
+            const json =  JSON.parse(session) 
+            await logIn(json.email, "1234")
         } else {
 
             // create a new account
