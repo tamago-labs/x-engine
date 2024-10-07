@@ -61,6 +61,7 @@ const ReportList = ({ selected, setSelect, list }) => {
                                 onNodeSelect={({ element }) => {
                                     list[element.id - 1] && setSelect({
                                         source_code: false,
+                                        title: list[element.id - 1].title,
                                         value: list[element.id - 1].value
                                     })
                                 }}

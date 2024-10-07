@@ -6,8 +6,52 @@ import Markdown from 'react-markdown'
 import Editor from '@monaco-editor/react';
 import { AccountContext } from "@/hooks/useAccount";
 
+const filterArray = (input) => {
+
+    if (input.indexOf("[") !== -1 && input.indexOf("]") !== -1) {
+        input = (input.split("[")[1]).split("]")[1]
+    }
+
+    return input
+}
+
+const Scores = ({ value }) => {
+
+    let cards = []
+
+    if (value.indexOf("[") !== -1 && value.indexOf("]") !== -1) {
+
+        try {
+            const arr = value.substring(value.indexOf("["), value.indexOf("]") + 1).replaceAll("%", "")
+            const json = JSON.parse(arr)
+            cards = [json.reduce((out, item) => {
+                return out + item
+            }, 0) / json.length]
+        } catch (e) {
+
+        }
+
+    }
+
+    return <div className="flex flex-row space-x-2">
+        {cards.map((item, index) => {
+            return (
+                <div key={index} className="  group my-4 mt-2 px-4 py-4 text-sm flex flex-row  space-x-5  border border-neutral-600   ">
+
+                    <h3 className="my-auto">Vulnerability Score:</h3>
+                    <h1 className="text-2xl my-auto  font-bold">
+                        {`${item.toFixed(0)}%`}
+                    </h1>
+                </div >
+            )
+        })
+
+        }
+    </div>
+}
+
 const MarkdownDisplay = ({ content, setSelect, close }) => {
- 
+
     const { saveFile } = useContext(AccountContext)
 
     const onSave = useCallback((value, event) => {
@@ -18,7 +62,7 @@ const MarkdownDisplay = ({ content, setSelect, close }) => {
             saveFile(content, setSelect, project_name, file_name, value)
         }
 
-    },[ content , saveFile])
+    }, [content, saveFile])
 
     return (
         <>
@@ -27,7 +71,7 @@ const MarkdownDisplay = ({ content, setSelect, close }) => {
                     {content && (
                         <div className='bg-[#1E1E1E] text-[#D4D4D4] font-mono px-4 flex border-neutral-600 border-r '>
                             <div className='m-auto'>
-                                {content && content.source_code === false &&  shortAddress(content.value)}
+                                {content && content.source_code === false && (content.title)}
                                 {content && content.source_code === true && `${content.name}`}
                             </div>
                             <div onClick={close} className='m-auto'>
@@ -40,8 +84,9 @@ const MarkdownDisplay = ({ content, setSelect, close }) => {
                 {(content && content.source_code === false)
                     &&
                     <div className="p-4">
+                        <Scores value={content.value} />
                         <Markdown>
-                            {content.value}
+                            {filterArray(content.value)}
                         </Markdown>
                         <style>
                             {`
