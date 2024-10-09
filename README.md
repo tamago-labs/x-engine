@@ -105,9 +105,29 @@ When creating a report, `rag_chain.js` generates sections based on each provided
 
 Example smart contracts on Sui Move and Aptos Move are available to start testing.
 
+## How to use 
+
+Go to https://app.tamagolabs.com and ensure you have enough credits to perform a request. Your user profile is generated randomly on the client side.
+
+### 1. Add a File
+- Navigate to the IDE/Editor screen and paste your source code. 
+- You can also create your own project and files, instead of using the example files provided.
+
+### 2. Choose a Review Flow
+- On either the main screen or the IDE/Editor screen, click the 'Start Process' button.
+- Choose between two workflows: Vulnerability Detection or Gas Optimization.
+
+### 3. Submit Your Request
+- Submit your request. All requests are processed in batches, and your request should start within 10 minutes or less.
+- Each request currently costs 10 credits.
+
+### 4. Check the Report
+- Once the process is complete, you can view the results on the Report screen.
+
+
 ## How to Test
 
-You can visit https://app.tamagolabs.com. We provide 3 free requests per user per day. However, you can set up the entire project on your own by following the instructions.
+You also can setup the entire project on your own by following the instructions.
 
 The project uses a Lerna monorepo. After downloading this repo onto your machine, you can then run:
 
@@ -134,11 +154,6 @@ Tests for backend can also be run by:
 npm run test-backend
 ```
 
-The whole system can start by:
-
-```
-npm start
-```
 
 ## Awards & Recognition
 
