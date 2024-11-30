@@ -18,74 +18,138 @@ class AccountManagement {
     setup = async () => {
 
         try {
-            // Generate a key for Aptos
-            const { privateKey } = Account.generate();
 
-            // Generate a key for Sui
-            const keypair = new Ed25519Keypair()
+            const wallets = await this.setupWallets()
+            const templates = await this.setupTemplates()
 
             await this.db.put({
                 _id: "system",
-                context: {
-                    "default": {
-                        "system_prompt": [
-                            `You are an AI agent assigned to review source code. `,
-                            `Use the following pieces of context to answer the question without referring to the example source code.`,
-                            `Return vulnerability scores as an array at the beginning.`,
-                            `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
-                            `\n\n`,
-                            `Context: {context}`,
-                        ].join(""),
-                        "resources": [
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/broken-access-controls.md",
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/integer-overflow-and-underflow.md",
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/move-vector-limitations.md",
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/re-entrancy.md",
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/sui-vs-aptos-move-differences.md"
-                        ]
-                    },
-                    "gas-optimize": {
-                        "system_prompt": [
-                            `You are an AI agent assigned to suggest improvements on the provided source code. `,
-                            `Use the following pieces of context to answer the question without referring to the example source code.`,
-                            `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
-                            `\n\n`,
-                            `Context: {context}`,
-                        ].join(""),
-                        "resources": [
-                            "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/aptos-move-gas-optimization.md"
-                        ]
-                    }
-                },
-                keys: [
-                    {
-                        "network": "aptos",
-                        "value": `${privateKey}`
-                    },
-                    {
-                        "network": "sui",
-                        "value": `${keypair.getSecretKey()}`
-                    }
-                    // TODO: adding EVM
-                ]
+                message: "a message to be signed",
+                contexts: templates,
+                wallets
             })
+
         } catch (e) {
-
+            console.log(e)
         }
-
 
     }
 
-    // Password should be hashed on the client side
-    signUp = async (email, password) => {
+    setupWallets = async () => {
 
-        if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) === false) {
-            throw new Error("Invalid Email")
+        // Generate a key for Aptos
+        const { privateKey } = Account.generate();
+
+        // Generate a key for Sui
+        const keypair = new Ed25519Keypair()
+
+        // Generate for EVM
+        const mnemonic_phrase = (ethers.Wallet.createRandom()).mnemonic.phrase
+
+        return [
+            {
+                "network": "aptos",
+                "value": `${privateKey}`
+            },
+            {
+                "network": "sui",
+                "value": `${keypair.getSecretKey()}`
+            },
+            {
+                "network": "evm",
+                "value": `${mnemonic_phrase}`
+            }
+        ]
+
+    }
+
+    setupTemplates = async () => {
+        return {
+            "code_review": {
+                "title": "Code Review",
+                "description": "Analyze source code for vulnerabilities and provide a formal security report with a vulnerability score array.",
+                "system_prompt": [
+                    `You are an AI agent assigned to review source code. `,
+                    `Use the following pieces of context to answer the question without referring to the example source code.`,
+                    `Return vulnerability scores as an array at the beginning.`,
+                    `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
+                    `\n\n`,
+                    `Context: {context}`,
+                ].join(""),
+                "resources": [
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/broken-access-controls.md",
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/integer-overflow-and-underflow.md",
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/move-vector-limitations.md",
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/re-entrancy.md",
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/sui-vs-aptos-move-differences.md"
+                ]
+            },
+            "gas_optimize": {
+                "title": "Gas Optimization",
+                "description": "Suggest improvements to optimize gas usage in source code while maintaining a concise and formal report format.",
+                "system_prompt": [
+                    `You are an AI agent assigned to suggest improvements on the provided source code. `,
+                    `Use the following pieces of context to answer the question without referring to the example source code.`,
+                    `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
+                    `\n\n`,
+                    `Context: {context}`,
+                ].join(""),
+                "resources": [
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/aptos-move-gas-optimization.md",
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/sui-move-gas-optimization.md"
+                ]
+            },
+            "optimistic_oracle": {
+                "title": "Optimistic Oracle",
+                "description": "Analyze data from provided links to generate concise outputs for submission to an Optimistic Oracle.",
+                "system_prompt": [
+                    `You are an AI agent tasked with analyzing provided links.`,
+                    `To generate concise outputs suitable for submission to an Optimistic Oracle.`,
+                    `\n\n`,
+                    `Context: {context}`,
+                ].join(""),
+                "resources": [
+                    "https://raw.githubusercontent.com/tamago-labs/x-engine/refs/heads/main/packages/context/optimistic-oracle.md"
+                ]
+            }
         }
+    }
+
+    // check system wallet addresses
+    systemInfo = async () => {
+
+        const entry = await this.db.get("system")
+
+        let shared_addresses = {}
+
+        for (let key of entry.wallets) {
+
+            if (key.network === "aptos") {
+                const privateKey = new Ed25519PrivateKey(key.value)
+                const thisAccount = await Account.fromPrivateKey({ privateKey })
+                shared_addresses["aptos"] = `${thisAccount.accountAddress}`
+            } else if (key.network === "sui") {
+                const keypair = Ed25519Keypair.fromSecretKey(key.value);
+                const address = keypair.getPublicKey().toSuiAddress();
+                shared_addresses["sui"] = address
+            } else if (key.network === "evm") {
+                const evm_wallet = ethers.Wallet.fromPhrase(key.value)
+                shared_addresses["evm"] = evm_wallet.address
+            }
+
+        }
+
+        return {
+            shared_addresses,
+            contexts: entry.contexts,
+            message: entry.message
+        }
+    }
+
+    createUserEntry = async (email) => {
 
         const item = {
             _id: email,
-            password,
             credits: 30,
             created: new Date().valueOf(),
             messages: [
@@ -96,17 +160,20 @@ class AccountManagement {
             ]
         }
 
-        await this.db.put(item)
+        try { 
+            await this.db.put(item)
+        } catch (e) {
+
+        }
+
+        return item
     }
 
-    logIn = async (email, password) => {
+    getUserInfo = async (email) => {
 
         try {
-            let entry = await this.db.get(email)
 
-            if (entry.password !== password) {
-                throw new Error("Password mismatched")
-            }
+            let entry = await this.db.get(email)
 
             // add daily free credits
             const yesterday = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -122,18 +189,21 @@ class AccountManagement {
                 await this.db.put(entry)
             }
 
-
             return {
-                sessionId: ethers.hashMessage(`${email}${entry.created}`), // use simple hash with no expiration on this beta
                 email,
                 credits: entry.credits,
                 created: entry.created,
-                messages: entry.messages,
-                context: entry.context
+                messages: entry.messages
             }
         } catch (e) {
-            if (e.message === "missing") {
-                throw new Error("Given email not found")
+            if (e.message === "missing") { 
+                const entry = await this.createUserEntry(email) 
+                return {
+                    email,
+                    credits: entry.credits,
+                    created: entry.created,
+                    messages: entry.messages
+                }
             } else {
                 throw e
             }
@@ -141,15 +211,11 @@ class AccountManagement {
 
     }
 
-    // deduct credits
-    deduct = async (account, sessionId, credit) => {
+     // deduct credits
+     deduct = async (email, credit) => {
 
         try {
-            let entry = await this.db.get(account)
-
-            if (ethers.hashMessage(`${account}${entry.created}`) !== sessionId) {
-                throw new Error("Invalid session ID")
-            }
+            let entry = await this.db.get(email)
 
             if (entry.credits < credit) {
                 throw new Error("Insufficient credits")
@@ -171,47 +237,12 @@ class AccountManagement {
 
     }
 
-    // check system wallet addresses
-    systemInfo = async () => {
-
-        const entry = await this.db.get("system")
-
-        let aptosAddresses = []
-        let suiAddresses = []
-
-        for (let key of entry.keys) {
-
-            if (key.network === "aptos") {
-                const privateKey = new Ed25519PrivateKey(key.value)
-                const thisAccount = await Account.fromPrivateKey({ privateKey })
-                aptosAddresses.push(`${thisAccount.accountAddress}`)
-            } else if (key.network === "sui") {
-                const keypair = Ed25519Keypair.fromSecretKey(key.value);
-                const address = keypair.getPublicKey().toSuiAddress();
-                suiAddresses.push(address)
-            }
-
-        }
-
-        return {
-            aptosAddresses,
-            suiAddresses
-        }
-    }
-
-    getContext = async (contextName) => {
-        const entry = await this.db.get("system") 
-        return {
-            ...entry["context"][contextName],
-            "context_name": contextName
-        }
-    }
 
     destroy = async () => {
         await this.db.destroy();
     }
 
-}
 
+}
 
 export default AccountManagement

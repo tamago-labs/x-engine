@@ -1,0 +1,40 @@
+[
+    {
+        "name": "Gas Optimization",
+        "description": "A template to analyze and optimize Move smart contract code, minimizing gas costs while maintaining efficiency, ensuring cost-effective interactions on the Sui blockchain",
+        "system_prompt" : "You are an AI agent assigned to suggest improvements on the provided source code. Use the following pieces of context to answer the question without referring to the example source code. Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report. \n\nContext: {context}",
+        "user_prompt" : "From the source code below, suggest ways to optimize gas usage:",
+        "examples" : [
+            "\nmodule hello_world::hello_world {",
+            "\n    use std::string;",
+            "\n    use sui::object::{Self, UID};",
+            "\n    use sui::transfer;",
+            "\n    use sui::tx_context::{Self, TxContext};",
+            "\n\n    struct HelloWorldObject has key, store {",
+            "\n        id: UID,",
+            "\n        text: string::String",
+            "\n    }",
+            "\n\n    public entry fun mint(ctx: &mut TxContext) {",
+            "\n        let object = HelloWorldObject {",
+            "\n            id: object::new(ctx),",
+            "\n            text: string::utf8(b'Hello World!')",
+            "\n        };",
+            "\n        transfer::public_transfer(object, tx_context::sender(ctx));",
+            "\n    }",
+            "\n}"
+        ],
+        "resources": [
+            "https://raw.githubusercontent.com/pisuthd/very-useful-sui-hacker-house/refs/heads/main/packages/context/sui-move-gas-optimization.md"
+        ]
+    },
+    {
+        "name": "Outcome Segmentation",
+        "description": "Segregating price prediction outcomes into defined segments (e.g., A, B, C, D) to provide clearer insights and actionable data for any market prediction project utilizing Pyth Oracle's real-time data",
+        "system_prompt" : "You are an AI agent tasked with delivering insights for outcome segmentation in DeFi market predictions. Use the provided context to generate your response. \n\nContext: {context}",
+        "user_prompt" : "Based on the current BTC price fetched from Pyth Oracle, suggest outcome ranges.\nFor example: A: <$60,000, B: $60,000-$70,000, C: $70,000-$80,000, D: >$80,000.",
+        "examples" : [],
+        "resources" : [
+            "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43"
+        ]
+    }
+]
