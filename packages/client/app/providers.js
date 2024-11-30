@@ -36,7 +36,7 @@ const sessionStorageAdapter = {
     },
 };
 
-registerStashedWallet("Breaking the Ice - Community Vote", {});
+registerStashedWallet("Tamago Labs", {});
 
 const queryClient = new QueryClient();
 

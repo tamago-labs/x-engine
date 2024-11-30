@@ -8,13 +8,39 @@ const Provider = ({ children }) => {
     const [values, dispatch] = useReducer(
         (curVal, newVal) => ({ ...curVal, ...newVal }),
         {
+            session: undefined,
             shared_addresses: undefined,
             contexts: undefined,
             message: undefined
         }
     )
 
-    const { shared_addresses, contexts, message } = values
+    const { shared_addresses, contexts, message, session } = values
+
+    const checkSession = useCallback(async (email) => {
+        await logIn(email)
+    }, [])
+
+    const logIn = useCallback(async (email) => {
+
+        const host = process.env.HOST || "localhost"
+        const prefix = host === "localhost" ? "http" : "https"
+        const port = process.env.PORT || "8000"
+
+        const hostname = `${prefix}://${host}:${port}/login`
+
+        try {
+            const { data } = await axios.post(`${hostname}`, {
+                email
+            })
+            dispatch({
+                session: data
+            })
+        } catch (e) {
+            throw new Error(e.response.data.message)
+        }
+
+    }, [])
 
     const checkActive = async () => {
 
@@ -93,11 +119,14 @@ const Provider = ({ children }) => {
             submit,
             shared_addresses,
             message,
-            contexts
+            contexts,
+            session,
+            checkSession
         }), [
         shared_addresses,
         message,
-        contexts
+        contexts,
+        session
     ])
 
     return (

@@ -89,9 +89,8 @@ const AccountContainer = () => {
 
     return (
         <div className="w-full max-w-5xl mx-auto p-4 mt-2 grid grid-cols-7 gap-3">
-
             <div className="col-span-7 md:col-span-3 ">
-                <div className="border border-neutral-600 p-6 px-4">
+                <div className="border rounded-xl border-neutral-600 p-6 px-4">
                     <h2 className="font-semibold text-2xl ">Account</h2>
                     <p className="mt-4 mb-0 text-neutral-400">Email:</p>
                     <p>
@@ -107,16 +106,9 @@ const AccountContainer = () => {
             </div>
             <div className="col-span-7 md:col-span-4 ">
 
-                <div className="border border-neutral-600 p-6 px-4">
+                {/* <div className="border border-neutral-600 p-6 px-4">
                     <div className="flex flex-row mb-4">
-                        <h2 className="font-semibold text-2xl ">Automation Signer Addresses</h2>
-                        {/* <div className="ml-auto">
-                            <button onClick={() => alert("hello...")}
-                                className={`inline-flex  justify-center gap-x-1.5 rounded-full bg-white px-6 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 `}>
-                                <FiPlusCircle size={18} className="my-auto pb-[3px]" />
-                                Add Wallet
-                            </button>
-                        </div>  */}
+                        <h2 className="font-semibold text-2xl ">Automation Signer Addresses</h2> 
                     </div>
 
                     {shared_addresses && (
@@ -145,7 +137,7 @@ const AccountContainer = () => {
                     <p className="mt-6 text-sm text-neutral-400">
                         The above addresses need to be whitelisted on your smart contract to enable automated operations and workflows with the system
                     </p>
-                </div>
+                </div> */}
 
             </div>
         </div>

@@ -33,7 +33,7 @@ const Footer = () => {
                     )}
                 </div>
                 <div className='flex ml-auto '>
-                    T-Engine v.0.3.0
+                    X-Engine v.0.3.0
                 </div>
             </div>
         </footer>

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import LoginPanel from "../loginPanel"
 
 
-const Header = () => {
+const HeaderOLD = () => {
 
     const path = usePathname()
 
@@ -22,13 +22,24 @@ const Header = () => {
                     <Link href="/workbench" className={`  ${path === "/workbench" ? "font-semibold" : "opacity-60 hover:opacity-100"} `}>
                         Workbench
                     </Link>
-                    <Link href="/transactions" className={`  ${path === "/transactions" ? "font-semibold" : " opacity-60 hover:opacity-100"} `}>
-                        Transactions
+                    <Link href="/apps" className={`  ${path === "/apps" ? "font-semibold" : " opacity-60 hover:opacity-100"} `}>
+                        Applications
                     </Link>
                 </div>
             </div>
             <div className="flex-1 flex justify-center">
-                <LoginPanel/> 
+                <LoginPanel />
+            </div>
+        </div>
+    )
+}
+
+const Header = () => {
+
+    return (
+        <div className="h-[60px] flex flex-row w-full py-2 z-10 ">
+            <div className="ml-auto mr-2">
+                <LoginPanel />
             </div>
         </div>
     )
