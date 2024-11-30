@@ -6,90 +6,122 @@ import { useContext, useEffect, useState } from "react"
 import { ArrowRight, FileText, Grid, LogIn, LogOut, Play, Plus, Settings } from "react-feather"
 import { GrTrigger } from "react-icons/gr";
 import { LoginButton } from "../loginPanel"
+import { useInterval } from "usehooks-ts"
+
 
 import Link from "next/link"
-import TemplateModal from "@/modals/template"
+import { shortText } from "@/helpers"
+// import TemplateModal from "@/modals/template"
 
 
-const MODAL = {
-    NONE: 0,
-    TEMPLATE: 1
-}
+// const MODAL = {
+//     NONE: 0,
+//     TEMPLATE: 1
+// }
+
+const ResultRow = ({ item }) => {
 
 
-const DashboardContainerOLD = () => {
-
-    const [modal, setModal] = useState(MODAL.NONE)
-
-    const [isActive, setActive] = useState(false)
-
-    const { user } = useContext(AccountContext)
-    const { checkActive } = useContext(ServerContext)
-
-    useEffect(() => {
-        checkActive().then(setActive)
-    }, [])
-
-    contexts
     return (
-        <>
+        <div className="bg-neutral-800 group my-1 mb-2 px-4 py-4 text-sm flex flex-row  rounded-lg space-x-5 w-full  border border-neutral-600  hover:border-white">
 
-            <TemplateModal
-                visible={modal === MODAL.TEMPLATE}
-                close={() => setModal(MODAL.NONE)}
-            />
-
-            <div className="flex flex-col">
-
-                <div data-aos="fade-up" data-aos-duration="1000" className="text-center mt-[40px] text-2xl font-semibold">
-                    Welcome, {user ? user.email : "Anonymous"}
-                </div>
-
-                <div className="mt-[20px] mx-auto w-full max-w-md flex flex-col space-y-4">
-
-
-                    <Link href="/workbench" className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
-                        Create New Task
-                    </Link>
-
-                    <button onClick={() => setModal(MODAL.TEMPLATE)} className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
-                        Clone from Templates
-                    </button>
-
-                    <Link href="/workbench" className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
-                        Load Saved Tasks
-                    </Link>
-
-                </div>
-
-                <div className='mx-auto flex flex-row mt-[20px] text-xs'>
-                    <div className="relative mt-auto mb-auto mr-1.5 ml-0.5">
-                        <div className={`w-2 h-2 ${isActive ? "bg-lime-600" : "bg-yellow-400"} rounded-full`}></div>
-                    </div>
-
-                    {isActive && (
-                        <>
-                            Server connected
-                        </>
-                    )}
-                    {!isActive && (
-                        <>
-                            Can't connect to the server
-                        </>
-                    )}
-                </div>
-
-
+            <div>
+                <h2 className="text-xs text-gray-300">Submitted By</h2>
+                <p> {((item.account))}</p>
             </div>
 
-        </>
+            {/* <div>
+                <h2 className="text-xs text-gray-300">Title</h2>
+                <p> {item.title}</p>
+            </div>*/}
+            <div className="flex-grow">
+                <h2 className="text-xs text-gray-300">Prompt</h2>
+                <p> {shortText(item.system_prompt)}</p>
+            </div>
+            <div  >
+                <h2 className="text-xs text-gray-300">Created At</h2>
+                <p> {new Date(Number(item.timestamp)).toLocaleString()}</p>
+            </div>
+
+        </div >
     )
 }
+
+
+// const DashboardContainerOLD = () => {
+
+//     const [modal, setModal] = useState(MODAL.NONE)
+
+//     const [isActive, setActive] = useState(false)
+
+//     const { user } = useContext(AccountContext)
+//     const { checkActive } = useContext(ServerContext)
+
+//     useEffect(() => {
+//         checkActive().then(setActive)
+//     }, [])
+
+//     contexts
+//     return (
+//         <>
+
+//             <TemplateModal
+//                 visible={modal === MODAL.TEMPLATE}
+//                 close={() => setModal(MODAL.NONE)}
+//             />
+
+//             <div className="flex flex-col">
+
+//                 <div data-aos="fade-up" data-aos-duration="1000" className="text-center mt-[40px] text-2xl font-semibold">
+//                     Welcome, {user ? user.email : "Anonymous"}
+//                 </div>
+
+//                 <div className="mt-[20px] mx-auto w-full max-w-md flex flex-col space-y-4">
+
+
+//                     <Link href="/workbench" className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
+//                         Create New Task
+//                     </Link>
+
+//                     <button onClick={() => setModal(MODAL.TEMPLATE)} className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
+//                         Clone from Templates
+//                     </button>
+
+//                     <Link href="/workbench" className="py-4 px-4 border text-center border-neutral-600 rounded-full hover:border-neutral-300">
+//                         Load Saved Tasks
+//                     </Link>
+
+//                 </div>
+
+//                 <div className='mx-auto flex flex-row mt-[20px] text-xs'>
+//                     <div className="relative mt-auto mb-auto mr-1.5 ml-0.5">
+//                         <div className={`w-2 h-2 ${isActive ? "bg-lime-600" : "bg-yellow-400"} rounded-full`}></div>
+//                     </div>
+
+//                     {isActive && (
+//                         <>
+//                             Server connected
+//                         </>
+//                     )}
+//                     {!isActive && (
+//                         <>
+//                             Can't connect to the server
+//                         </>
+//                     )}
+//                 </div>
+
+
+//             </div>
+
+//         </>
+//     )
+// }
 
 const DashboardContainer = () => {
 
     const { isConnected, user, logout } = useContext(AccountContext)
-    const { checkSession, session, contexts } = useContext(ServerContext)
+    const { checkSession, session, contexts, getJobs } = useContext(ServerContext)
+    const [jobs, setJobs] = useState([])
 
     useEffect(() => {
 
@@ -100,10 +132,14 @@ const DashboardContainer = () => {
 
     }, [isConnected, user])
 
-    const jobs = []
-
-    console.log("session: ", session)
-    console.log("contexts: ", contexts)
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         getJobs().then(setJobs)
+    //     }, 1000)
+    // }, [])
+    useInterval(() => {
+        getJobs().then(setJobs)
+    }, 3000)
 
     return (
         <>
@@ -117,7 +153,7 @@ const DashboardContainer = () => {
                         <div className="mx-4">
                             <div className="border border-neutral-600 w-full  mx-4 rounded-xl px-6 py-6">
                                 <h2 className="text-xl w-[300px]  font-semibold mt-6 ">Welcome to Tamago Labs!</h2>
-                                <p className="text-sm py-2">Automate smart contract operations with AI for endless use cases</p>
+                                <p className="text-sm py-2">Automate smart contract operations with AI with endless use cases</p>
                                 <div className='my-4 border-neutral-600 border-t pt-4 flex text-sm  px-0 sm:px-2 text-gray-100 '>
                                     {/* <div className="w-full max-w-[420px] mx-auto">
                                     <li>Now featuring gas optimization and vulnerability detection with AI for Move contracts. </li>
@@ -178,14 +214,13 @@ const DashboardContainer = () => {
                                 </div>
                             )}
 
-
-                            {/* {jobs.map((job, index) => {
+                            {user && jobs.filter(item => item.account === user.email).map((job, index) => {
                                 return (
                                     <div key={index}>
                                         <ResultRow item={job} />
                                     </div>
                                 )
-                            })} */}
+                            })}
 
                             <div className="mt-5 mb-1 space-x-3">
                                 <Link href="/trigger">
@@ -211,7 +246,7 @@ const DashboardContainer = () => {
                             </div>
 
                         </div>
-                    )} 
+                    )}
                 </div>
 
                 <div className="col-span-3 flex">
@@ -221,26 +256,27 @@ const DashboardContainer = () => {
                             <Link href="/input">
                                 <button className="bg-neutral-800 px-6 py-3.5  flex flex-row justify-center w-full rounded-full border border-neutral-600 hover:border-white">
                                     <Plus className="mr-[10px]" />
-                                    Add Task
+                                    Create Task
                                 </button>
                             </Link>
-                        </div>
-                        <div>
-                            <button onClick={() => alert("hello...")} className="bg-neutral-800 px-6 py-3.5 flex flex-row justify-center w-full rounded-full border border-neutral-600 hover:border-white">
-                                <Play className="mr-[10px]" />
-                                Submit Task
-                            </button>
                         </div>
                         <div>
                             <Link href="/trigger">
                                 <button className="bg-neutral-800 px-6 py-3.5  flex flex-row justify-center w-full rounded-full border border-neutral-600 hover:border-white">
                                     <GrTrigger size={22} className="mr-[10px]" />
-                                    Update Contract
+                                    Trigger Contract
                                 </button>
                             </Link>
                         </div>
+                        <div>
+                            <button onClick={() => alert("Not available yet.")} className="bg-neutral-800 px-6 py-3.5 flex flex-row justify-center w-full rounded-full border border-neutral-600 hover:border-white">
+                                <Play className="mr-[10px]" />
+                                Re-Submit Task
+                            </button>
+                        </div>
+
                         <div className="text-center text-xs py-1">
-                            Currently, <Link href="/context" className="underline">{ contexts && (Object.keys(contexts)).length }</Link> contexts are available
+                            Currently, <Link href="/context" className="underline">{contexts && (Object.keys(contexts)).length}</Link> contexts are available
                         </div>
                     </div>
 

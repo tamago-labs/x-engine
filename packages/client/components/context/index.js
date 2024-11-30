@@ -19,10 +19,10 @@ const ContextContainer = ({ contexts }) => {
 
                 <div className="h-[40px] border-b w-full border-neutral-600 flex ">
                     <h4 className="m-auto text-gray-400 font-semibold uppercase text-sm tracking-wider">
-                        Context
+                        Context List
                     </h4>
                 </div>
-                <div class="grid grid-cols-5 gap-2 px-2 mt-6">
+                <div className="grid grid-cols-5 gap-2 px-2 mt-6">
                     <div class="col-span-5 flex">
                         <div className="pl-0.5">
                             <label className="block text-sm font-medium text-gray-300">Available</label>

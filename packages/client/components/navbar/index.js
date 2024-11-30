@@ -24,7 +24,7 @@ const Navbar = () => {
                         </div>
                     </Link>
                 </li> 
-                 <li className={`${path === "/upload" ? "bg-neutral-700 border-blue-600 border-l-4" : " border-transparent border-l-4"} `}>
+                 <li className={`${path === "/input" ? "bg-neutral-700 border-blue-600 border-l-4" : " border-transparent border-l-4"} `}>
                     <Link href="/input">
                         <div className="mx-auto py-3 justify-between p-2 cursor-pointer">
                             <div className={`flex items-center justify-center ${path === "/upload" ? "opacity-100" : "opacity-60"} hover:opacity-100`}>

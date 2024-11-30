@@ -65,11 +65,10 @@ const Provider = ({ children }) => {
 
     }
 
-    const submit = useCallback(async (user, template, tasks) => {
+    const submit = useCallback(async (user, context, template, task) => {
 
         try {
 
-            console.log("submit:", user, template, tasks)
 
             const host = process.env.HOST || "localhost"
             const prefix = host === "localhost" ? "http" : "https"
@@ -79,9 +78,9 @@ const Provider = ({ children }) => {
 
             const payload = {
                 account: user.email,
-                resources: template.resources,
-                system_prompt: template.system_prompt,
-                tasks
+                resources: context.resources,
+                system_prompt: context.system_prompt,
+                tasks: [task]
             }
 
             await axios.post(`${hostname}/submit`, payload)
@@ -103,8 +102,27 @@ const Provider = ({ children }) => {
 
             const hostname = `${prefix}://${host}:${port}`
 
-            const { data } = await axios.get(`${hostname}/report/${user.email}`)
+            const { data } = await axios.get(`${hostname}/report/${user}`)
             return data.reports
+        } catch (e) {
+            console.log(e)
+            return []
+        }
+
+    }, [])
+
+    const getJobs = useCallback(async () => {
+
+        try {
+
+            const host = process.env.HOST || "localhost"
+            const prefix = host === "localhost" ? "http" : "https"
+            const port = process.env.PORT || "8000"
+
+            const hostname = `${prefix}://${host}:${port}`
+
+            const { data } = await axios.get(`${hostname}/jobs`)
+            return data.jobs
         } catch (e) {
             console.log(e)
             return []
@@ -116,6 +134,7 @@ const Provider = ({ children }) => {
         () => ({
             checkActive,
             getReport,
+            getJobs,
             submit,
             shared_addresses,
             message,

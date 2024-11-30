@@ -50,8 +50,7 @@ const MarkdownDisplay = ({ content, setSelect, close }) => {
 
                 {(content && content.source_code === false && data)
                     &&
-                    <div className="p-4 overflow-y-auto max-h-[90vh]">
-                        {/* <Scores value={content.value} /> */}
+                    <div className="p-4 overflow-y-auto max-h-[90vh]"> 
                         <Markdown>
                             {filterArray(data)}
                         </Markdown>
