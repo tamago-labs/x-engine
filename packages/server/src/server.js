@@ -5,6 +5,8 @@ import cron from "node-cron"
 import Account from "./core/account.js"
 import RagChain from "./core/ragChain.js"
 
+import { attachValues } from "./utils/task.js"
+
 export const app = express()
 
 const accountManager = new Account()
@@ -20,15 +22,14 @@ app.use(cors())
 // Setup a worker
 const onWorker = async (args) => {
 
-    const { task, context } = args
+    const { task } = args
 
-    console.log("Worker started: ", context, " jobs")
+    console.log("Worker started... ")
 
     try {
         switch (task) {
             case "query":
-                const contextInfo = await accountManager.getContext(context)
-                await chain.executeJobs(contextInfo, 10)
+                await chain.executeJobs()
                 break
         }
     } catch (e) {
@@ -48,34 +49,20 @@ app.get('/', async (req, res) => {
     return res.status(200).json({ status: "ok" });
 })
 
-// User signup route
-app.post("/auth/signup", async (req, res) => {
-
-    const { body } = req
-
-    // Password must be hashed on the frontend
-    const { username, password } = body
-
-    try {
-        // Attempt to sign up the user with the provided credentials
-        await accountManager.signUp(username, password)
-        return res.status(200).json({ status: "ok", username })
-    } catch (e) {
-        return res.status(500).json({ status: "error", message: e.message })
-    }
-
+// System info
+app.get('/system', async (req, res) => {
+    const systemInfo = await accountManager.systemInfo()
+    return res.status(200).json({ status: "ok", ...systemInfo });
 })
 
 // User login route
-app.post("/auth/login", async (req, res) => {
+app.post("/login", async (req, res) => {
 
     const { body } = req
-
-    // Password must be hashed on the frontend
-    const { username, password } = body
+    const { email } = body
 
     try {
-        const response = await accountManager.logIn(username, password)
+        const response = await accountManager.getUserInfo(email)
         return res.status(200).json({ status: "ok", ...response })
     } catch (e) {
         return res.status(500).json({ status: "error", message: e.message })
@@ -83,21 +70,26 @@ app.post("/auth/login", async (req, res) => {
 
 })
 
+
 app.post("/submit", async (req, res) => {
 
     const { body } = req
-    const { account, sessionId, context, title, prompt } = body
+    const { account, resources, system_prompt, tasks } = body
 
     try {
 
-        await accountManager.deduct(account, sessionId, 10)
+        await accountManager.deduct(account, 10)
+
+        const tasksWithValues = await attachValues(tasks)
+
+        console.log("tasksWithValues : ", tasksWithValues)
 
         await chain.addJob({
             task: "query",
-            context,
             account,
-            title,
-            prompt
+            resources,
+            system_prompt,
+            tasks: tasksWithValues
         })
 
         return res.status(200).json({ status: "ok" });
@@ -107,6 +99,7 @@ app.post("/submit", async (req, res) => {
     }
 
 })
+
 
 // get all jobs
 
@@ -119,29 +112,13 @@ app.get("/jobs", async (req, res) => {
         return res.status(200).json({
             status: "ok", jobs: savedJobs.map((item) => {
                 return {
-                    context: item.context,
                     account: item.account,
-                    title: item.title,
-                    prompt_size: item.prompt.length,
+                    resources: item.resources,
+                    system_prompt: item.system_prompt,
                     timestamp: item.timestamp
                 }
             })
         })
-    } catch (e) {
-        return res.status(500).json({ status: "error", message: e.message })
-    }
-
-})
-
-// get context
-
-app.get("/context/:name", async (req, res) => {
-
-    const { params } = req
-    const { name } = params
-
-    try {
-        return res.status(200).json({ status: "ok", [name]: await accountManager.getContext(name) })
     } catch (e) {
         return res.status(500).json({ status: "error", message: e.message })
     }
@@ -162,21 +139,13 @@ app.get("/report/:account", async (req, res) => {
     }
 })
 
+
 // Execute jobs
 
-
 const executeJobs = async () => {
-
     queue.push({
-        task: "query",
-        context: "default"
+        task: "query"
     })
-
-    queue.push({
-        task: "query",
-        context: "gas-optimize"
-    })
-
 }
 
-cron.schedule('*/10 * * * *', executeJobs)
+cron.schedule('*/3 * * * *', executeJobs)

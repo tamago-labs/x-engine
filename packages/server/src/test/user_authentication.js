@@ -6,46 +6,31 @@ import Account from "../core/account.js"
 
 let account
 
+
 describe("#user_authentication()", function () {
 
     before(async function () {
         account = new Account()
     })
 
-    it('should sign in a new user success', async function () {
+    it('should list shared wallets success', async function () {
 
-        await account.signUp("alice@gmail.com", ethers.hashMessage("password"))
+        const { shared_addresses } = await account.systemInfo()
 
-        // Fails on duplicate users
-        try {
-            await account.signUp("alice@gmail.com", ethers.hashMessage("password"))
-        } catch (e) {
-            expect(e.message).to.equal("Document update conflict")
-        }
+        expect(shared_addresses["sui"].length).to.equal(66)
+        expect(shared_addresses["aptos"].length).to.equal(66)
+        expect(shared_addresses["evm"].length).to.equal(42)
     })
 
-    it('should log-in success', async function () {
+    it('should list default templates success', async function () {
 
-        // Fails on wrong password
-        try {
-            await account.logIn("alice@gmail.com", ethers.hashMessage("not correct"))
-        } catch (e) {
-            expect(e.message).to.equal("Password mismatched")
-        }
+        const { contexts } = await account.systemInfo()
 
-        const response = await account.logIn("alice@gmail.com", ethers.hashMessage("password"))
-        expect(response.credits).to.equal(30)
-        expect(response.messages.length).to.equal(1) 
-    })
-
-    it('should get system addresses success', async function () {
-        const result = await account.systemInfo()
-        expect(result.aptosAddresses[0].length).to.equal(66) 
-        expect(result.suiAddresses[0].length).to.equal(66) 
+        expect(contexts["code_review"] !== undefined).to.true
+        expect(contexts["gas_optimize"] !== undefined).to.true
     })
 
     after(async function () {
         await account.destroy()
     })
-
 })

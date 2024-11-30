@@ -44,14 +44,6 @@ const model = new ChatAnthropic({
     temperature: 0
 });
 
-const defaultSystemPrompt = [
-    `You are an AI agent assigned to review source code. `,
-    `Use the following pieces of context to answer the question without referring to the example source code.`,
-    `Return vulnerability scores as an array at the beginning.`,
-    `Use a maximum of two paragraph and maintain a formal tone to ensure it is suitable for inclusion in a security report.`,
-    `\n\n`,
-    `Context: {context}`,
-].join("")
 
 class RagChain {
 
@@ -75,7 +67,7 @@ class RagChain {
 
     }
 
-    init = async (urls = [], systemPrompt = defaultSystemPrompt) => {
+    init = async (urls = [], systemPrompt) => {
         if (this.is_init === false) {
             let count = 0
             let fileIds = []
@@ -92,7 +84,7 @@ class RagChain {
     }
 
     // Build a RAG chain for querying the knowledge base
-    build = async (fileIds, systemPrompt = defaultSystemPrompt) => {
+    build = async (fileIds, systemPrompt) => {
         if (fileIds.length === 0) {
             throw new Error("None of the document IDs have been provided")
         }
@@ -135,11 +127,11 @@ class RagChain {
 
         job.timestamp = new Date().valueOf()
 
-        const { account, title } = job
+        const { account } = job
 
-        if (entry.jobs.find(item => (item.title === title) && (item.account === account))) {
+        if (entry.jobs.find(item => (item.account === account))) {
             entry.jobs.map((item) => {
-                if ((item.title === title) && (item.account === account)) {
+                if ((item.account === account)) {
                     item = job
                 }
                 return item
@@ -153,57 +145,39 @@ class RagChain {
         await this.db.put(entry)
     }
 
-    listJobs = async (context = undefined) => {
-
+    listJobs = async () => {
         const entry = await this.db.get("system")
-
-        if (!context) {
-            return entry.jobs
-        } else {
-            return entry.jobs.filter(item => item.context === context)
-        }
+        return entry.jobs
     }
 
-    executeJobs = async (context, max = 3) => {
+    executeJobs = async () => {
 
         let entry = await this.db.get("system")
-        const total_items = (entry.jobs.filter(item => item.context === context.context_name)).length
+        const total_items = (entry.jobs).length
 
         console.log("Total item to execute : ", total_items)
 
-        if (total_items > 0 && max > 0 && max <= 100) {
-
-            console.log("Building RAG")
+        for (let job of entry.jobs) {
+            console.log("Building RAG...")
 
             // Build RAG chain
-            await this.init( context.resources, context.system_prompt )
-            
-            let count = 0;
-            let item_list = []
+            await this.init(job.resources, job.system_prompt)
 
-            entry.jobs = entry.jobs.reduce((arr, item) => {
+            for (let task of job.tasks) {
+                console.log("Querying for:", task.id)
+                const report = await this.query(task.value)
 
-                if ( item.context === context.context_name && max > count) {
-                    item_list.push(item)
-                    count +=1 
-                } else {
-                    arr.push(item)
-                }
+                await this.saveReport(job.account, task.id, report)
+                console.log("Report saved for ", task.id)
 
-                return arr
-            }, [])
-
-            await this.db.put(entry)
-
-            for (let item of item_list) {
-                console.log("Querying for:", item.title)
-                const report = await this.query(item.prompt)
-
-                await this.saveReport(item.account, item.title, report)
-                console.log("Report saved for ", item.title)
             }
+
         }
 
+        if (total_items > 0) {
+            entry.jobs = []
+            await this.db.put(entry)
+        }
     }
 
     saveReport = async (account, title, report) => {
@@ -303,7 +277,6 @@ class RagChain {
     destroy = async () => {
         await this.db.destroy();
     }
-
 }
 
 export default RagChain
