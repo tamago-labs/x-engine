@@ -18,6 +18,28 @@ import Loading from '@/components/loading';
 import AccountProvider from "../contexts/account"
 import ServerProvider from "../contexts/server"
 import { registerStashedWallet } from "@mysten/zksend";
+import { Web3OnboardProvider, init } from '@web3-onboard/react'
+import injectedModule from '@web3-onboard/injected-wallets'
+
+const injected = injectedModule()
+
+const wallets = [
+    injected
+]
+
+const chains = [
+    {
+        id: '0xf0',
+        token: 'zkTCRO',
+        label: 'Cronos zkEVM Testnet',
+        rpcUrl: `https://testnet.zkevm.cronos.org`
+    }
+]
+
+const web3Onboard = init({
+    wallets,
+    chains
+})
 
 const { networkConfig } = createNetworkConfig({
     testnet: { url: getFullnodeUrl("testnet") },
@@ -78,13 +100,15 @@ export function Providers({ children }) {
                             storage={sessionStorageAdapter}
                         >
                             <EnokiFlowProvider apiKey={process.env.ENOKI_API_KEY}>
-                                <AccountProvider>
-                                    {/* screen loader  */}
-                                    {showLoader && (
-                                        <Loading />
-                                    )}
-                                    {children}
-                                </AccountProvider>
+                                <Web3OnboardProvider web3Onboard={web3Onboard}> 
+                                    <AccountProvider>
+                                        {/* screen loader  */}
+                                        {showLoader && (
+                                            <Loading />
+                                        )}
+                                        {children} 
+                                    </AccountProvider>
+                                </Web3OnboardProvider>
                             </EnokiFlowProvider>
                         </WalletProvider>
                     </ServerProvider>
