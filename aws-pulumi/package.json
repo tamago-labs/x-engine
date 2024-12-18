@@ -1,0 +1,17 @@
+{
+    "name": "x-engine-serverless",
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^18",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.714.0",
+        "@aws-sdk/lib-dynamodb": "^3.714.0",
+        "@pulumi/aws": "^6.0.0",
+        "@pulumi/aws-apigateway": "^2.6.1",
+        "@pulumi/awsx": "^2.0.2",
+        "@pulumi/pulumi": "^3.113.0",
+        "aws-lambda": "^1.0.7"
+    }
+}
