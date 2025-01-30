@@ -7,7 +7,7 @@ import { ArrowRight, FileText, Grid, LogIn, LogOut, Play, Plus, Settings } from 
 import { GrTrigger } from "react-icons/gr";
 import { LoginButton } from "../loginPanel"
 import { useInterval } from "usehooks-ts"
-
+import BaseModal from "@/modals/base"
 
 import Link from "next/link"
 import { shortText } from "@/helpers"
@@ -123,26 +123,28 @@ const DashboardContainer = () => {
     const { checkSession, session, contexts, getJobs } = useContext(ServerContext)
     const [jobs, setJobs] = useState([])
 
-    useEffect(() => {
-
-        if (isConnected && user) {
-            const { email } = user
-            checkSession(email)
-        }
-
-    }, [isConnected, user])
-
     // useEffect(() => {
-    //     setTimeout(() => {
-    //         getJobs().then(setJobs)
-    //     }, 1000)
-    // }, [])
-    useInterval(() => {
-        getJobs().then(setJobs)
-    }, 3000)
 
+    //     if (isConnected && user) {
+    //         const { email } = user
+    //         checkSession(email)
+    //     }
+
+    // }, [isConnected, user])
+
+   
     return (
         <>
+
+            <BaseModal
+                title="🚧 Under Maintenance 🚧"
+                visible={true}
+            >
+                <p className="mt-2">
+                    We're currently upgrading our infrastructure and migrating to AWS Bedrock to enhance performance and reliability.
+                </p>
+                <p className="mt-2"> We appreciate your patience and will be back soon!</p>
+            </BaseModal>
 
             <div className=" mx-auto w-full max-w-5xl p-4 mt-2 grid grid-cols-7 gap-3">
 
