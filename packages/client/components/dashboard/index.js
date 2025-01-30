@@ -11,6 +11,7 @@ import { useInterval } from "usehooks-ts"
 
 import Link from "next/link"
 import { shortText } from "@/helpers"
+import BaseModal from "@/modals/base"
 // import TemplateModal from "@/modals/template"
 
 
@@ -120,29 +121,41 @@ const ResultRow = ({ item }) => {
 const DashboardContainer = () => {
 
     const { isConnected, user, logout } = useContext(AccountContext)
-    const { checkSession, session, contexts, getJobs } = useContext(ServerContext)
+    const { checkSession, session, contexts, getJobs, current_network } = useContext(ServerContext)
     const [jobs, setJobs] = useState([])
 
-    useEffect(() => {
-
-        if (isConnected && user) {
-            const { email } = user
-            checkSession(email)
-        }
-
-    }, [isConnected, user])
+    // useEffect(() => {
+    //     if (isConnected && user) {
+    //         const { email } = user
+    //         checkSession(email)
+    //     }
+    // }, [isConnected, user])
 
     // useEffect(() => {
     //     setTimeout(() => {
     //         getJobs().then(setJobs)
     //     }, 1000)
     // }, [])
-    useInterval(() => {
-        getJobs().then(setJobs)
-    }, 3000)
+    // useInterval(() => {
+    //     getJobs().then(setJobs)
+    // }, 3000)
 
     return (
         <>
+
+            <BaseModal
+                title="🚧 Under Maintenance 🚧"
+                visible={true}
+            >
+
+                <p className="mt-2">
+                    We're currently upgrading our infrastructure and migrating to AWS Bedrock to enhance performance and reliability.
+                </p>
+                <p className="mt-2"> We appreciate your patience and will be back soon!</p>
+
+
+
+            </BaseModal>
 
             <div className=" mx-auto w-full max-w-5xl p-4 mt-2 grid grid-cols-7 gap-3">
 
@@ -261,7 +274,7 @@ const DashboardContainer = () => {
                             </Link>
                         </div>
                         <div>
-                            <Link href="/trigger">
+                            <Link href={`/${current_network}/trigger`}>
                                 <button className="bg-neutral-800 px-6 py-3.5  flex flex-row justify-center w-full rounded-full border border-neutral-600 hover:border-white">
                                     <GrTrigger size={22} className="mr-[10px]" />
                                     Trigger Contract
@@ -279,7 +292,6 @@ const DashboardContainer = () => {
                             Currently, <Link href="/context" className="underline">{contexts && (Object.keys(contexts)).length}</Link> contexts are available
                         </div>
                     </div>
-
                 </div>
 
             </div>
