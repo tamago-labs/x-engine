@@ -3,14 +3,14 @@ import cors from "cors"
 import * as fastq from "fastq";
 import cron from "node-cron"
 import Account from "./core/account.js"
-import RagChain from "./core/ragChain.js"
+// import RagChain from "./core/ragChain.js"
 
 import { attachValues } from "./utils/task.js"
 
 export const app = express()
 
 const accountManager = new Account()
-const chain = new RagChain()
+// const chain = new RagChain()
 
 // Set the application to trust the reverse proxy
 app.set("trust proxy", true);
@@ -29,7 +29,7 @@ const onWorker = async (args) => {
     try {
         switch (task) {
             case "query":
-                await chain.executeJobs()
+                // await chain.executeJobs()
                 break
         }
     } catch (e) {
@@ -84,13 +84,13 @@ app.post("/submit", async (req, res) => {
 
         console.log("tasksWithValues : ", tasksWithValues)
 
-        await chain.addJob({
-            task: "query",
-            account,
-            resources,
-            system_prompt,
-            tasks: tasksWithValues
-        })
+        // await chain.addJob({
+        //     task: "query",
+        //     account,
+        //     resources,
+        //     system_prompt,
+        //     tasks: tasksWithValues
+        // })
 
         return res.status(200).json({ status: "ok" });
     } catch (e) {
@@ -103,27 +103,27 @@ app.post("/submit", async (req, res) => {
 
 // get all jobs
 
-app.get("/jobs", async (req, res) => {
+// app.get("/jobs", async (req, res) => {
 
-    try {
+//     try {
 
-        const savedJobs = await chain.listJobs()
+//         const savedJobs = await chain.listJobs()
 
-        return res.status(200).json({
-            status: "ok", jobs: savedJobs.map((item) => {
-                return {
-                    account: item.account,
-                    resources: item.resources,
-                    system_prompt: item.system_prompt,
-                    timestamp: item.timestamp
-                }
-            })
-        })
-    } catch (e) {
-        return res.status(500).json({ status: "error", message: e.message })
-    }
+//         return res.status(200).json({
+//             status: "ok", jobs: savedJobs.map((item) => {
+//                 return {
+//                     account: item.account,
+//                     resources: item.resources,
+//                     system_prompt: item.system_prompt,
+//                     timestamp: item.timestamp
+//                 }
+//             })
+//         })
+//     } catch (e) {
+//         return res.status(500).json({ status: "error", message: e.message })
+//     }
 
-})
+// })
 
 // get reports
 
